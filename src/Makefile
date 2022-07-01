@@ -28,22 +28,19 @@ all: $(BINS)
 install: all
 	cp -t /usr/lib/ $(BINS)
 
-# Create static library
-$(BIN_DIR)/libdsc.a: $(OBJS)
-	@mkdir $(BIN_DIR)
-	$(CC) -o $@ -static $(CCFLAGS) $(LDFLAGS) $<
-
-# Create dynamic library
-$(BIN_DIR)/libdsc.so: $(OBJS)
-	@mkdir $(BIN_DIR)
-	$(CC) -o $@ -shared $(CCFLAGS) $(LDFLAGS) $<
-
-# Create objects
-$(OBJ_DIR)/%.o: $(SRCS)
-	@mkdir $(OBJ_DIR)
-	$(CC) -c $(DEPS) -o $@ $(CCFLAGS) $<
-
 # Remove object files and binaries
 .PHONY: clean
 clean:
 	rm -rf $(OBJ_DIR)/*.o $(BINS)
+
+# Create static library
+$(BIN_DIR)/libdsc.a: $(OBJS)
+	$(CC) -o $@ $^ -static $(CCFLAGS) $(LDFLAGS)
+
+# Create dynamic library
+$(BIN_DIR)/libdsc.so: $(OBJS)
+	$(CC) -o $@ $^ -shared $(CCFLAGS) $(LDFLAGS)
+
+# Create objects
+$(OBJ_DIR)/%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CCFLAGS)
