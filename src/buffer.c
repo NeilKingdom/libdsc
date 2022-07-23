@@ -22,7 +22,7 @@
  */
 DSC_DECL void *create_buffer(size_t len, size_t bsize)
 {
-   void *buffer = mmap(0, len * bsize, PROT_READ | PROT_WRITE, MAP_SHARED, 0, 0);
+   void *buffer = mmap(NULL, len * bsize, PROT_READ | PROT_WRITE, MAP_SHARED, 0, 0);
    if (MAP_FAILED == buffer)
    {
       DSC_ERROR(__LINE__, __FUNCTION__, __FILE__);
@@ -70,7 +70,7 @@ DSC_DECL int resize_buffer(size_t oldlen, size_t newlen, size_t bsize, void *buf
    else
    {
       /* According to mremap, address must be page aligned */
-      assert((*buffer) % sysconf(_SC_PAGE_SIZE) == 0);
+      assert(buffer % sysconf(_SC_PAGE_SIZE) == 0);
       status = mremap(buffer, oldlen * bsize, newlen * bsize, 0);
       if (MAP_FAILED == status)
       {
