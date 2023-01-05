@@ -14,27 +14,23 @@ SRCS = $(wildcard *.c)
 DEPS = $(patsubst %.c, $(INC_DIR)/%.h, $(SRCS))
 OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-CCFLAGS += $(CCFLAGS_$(PROFILE)) -I$(INC_DIR) -Werror -Wall -Wextra -ansi -pedantic -std=c99
+CCFLAGS += $(CCFLAGS_$(PROFILE)) -I$(INC_DIR) -Werror -Wall -Wextra -Wformat -ansi -pedantic -std=c99
 LDFLAGS += -lc
 
 BINS := $(BIN_DIR)/libdsc.a $(BIN_DIR)/libdsc.so
 
 # Create static and dynamic libraries
-.PHONY: all
 all: $(BINS)
 
 # Copy libraries to /usr/lib
-.PHONY: install
 install: all
 	cp -t /usr/lib/ $(BINS)
 
 # Remove object files and binaries
-.PHONY: clean
 clean:
 	rm -rf $(OBJ_DIR)/*.o $(BINS)
 
 # Rebuild project
-.PHONY: rebuild
 rebuild: clean all
 
 # Create static library
@@ -48,3 +44,5 @@ $(BIN_DIR)/libdsc.so: $(OBJS)
 # Create objects
 $(OBJ_DIR)/%.o: %.c $(DEPS)
 	$(CC) $< -c -o $@ $(CCFLAGS)
+
+.PHONY: all install clean rebuild

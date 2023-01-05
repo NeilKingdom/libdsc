@@ -6,14 +6,19 @@
 
 START_TEST(CreateBuffer)
 {
-   int buf_len = 256;
+   size_t blen = 256;
+   size_t tsize = sizeof(int);
+   buffer_t buf;
 
-   pBuffer_t ibuf;
-   INIT_BUFFER(ibuf);
-   ibuf->begin = create_buffer(buf_len, sizeof(int));
+   buf.addr = create_buffer(blen, tsize);
+   buf.tsize = tsize;
 
-   assert(ibuf->type == DSC_BUFFER);
-   assert(sizeof_buffer(ibuf->begin) == 256 * sizeof(int));
+   printf("The length of buffer buf is: %ld", buffer_len(buf));
+   assert(buffer_len(buf) == 256);
+
+   /* TODO: Put in separate tests */
+   /*resize_buffer(blen, 20, *buf);*/
+   /*free_buffer(buffer_len(buf), buf);*/
 }
 END_TEST
 
