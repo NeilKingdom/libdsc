@@ -9,6 +9,7 @@ CCFLAGS_RELEASE = -O2
 OBJ_DIR := $(PROJ_DIR)/obj
 INC_DIR := $(PROJ_DIR)/include
 BIN_DIR := $(PROJ_DIR)/bin
+TEST_DIR := $(PROJ_DIR)/test
 
 SRCS = $(wildcard *.c)
 DEPS = $(patsubst %.c, $(INC_DIR)/%.h, $(SRCS))
@@ -40,9 +41,18 @@ $(BIN_DIR)/libdsc.a: $(OBJS)
 # Create dynamic library
 $(BIN_DIR)/libdsc.so: $(OBJS)
 	$(CC) -o $@ $^ -shared -fPIC $(CCFLAGS) $(LDFLAGS)
+	strip $(BIN_DIR)/libdsc.so
 
 # Create objects
 $(OBJ_DIR)/%.o: %.c $(DEPS)
 	$(CC) $< -c -o $@ $(CCFLAGS)
 
-.PHONY: all install clean rebuild
+# TODO: Modify test to include all tests
+test: $(OBJS) $(BIN_DIR)/buffer_test
+	./$(BIN_DIR)/buffer_test
+
+$(BIN_DIR)/buffer_test: $(DEPS)
+	$(CC) -c $(TEST_DIR)/buffer_test.c -o $(OBJ_DIR)/buffer_test.o $(CCFLAGS)
+	$(CC) $(OBJ_DIR)/buffer_test.o $(OBJ_DIR)/buffer.o -o $@ $(CCFLAGS) $(LDFLAGS)
+
+.PHONY: all install clean rebuild test
