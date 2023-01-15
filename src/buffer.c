@@ -4,7 +4,7 @@
  * data structures, and is thus the cornerstone of the
  * library.
  *
- * @file buffer.c
+ * @file
  * @author: Neil Kingdom
  * @version: 1.0
  * @since: 04-06-2022
