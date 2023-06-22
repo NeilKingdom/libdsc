@@ -5,14 +5,12 @@
  *
  * #define BUF_TYPE int
  * #define TSIZE sizeof(BUF_TYPE)
- * #define BLEN (size_t)10
  *
- * int main(void)
- * {
- *    pBuffer_t buf;
+ * int main(void) {
+ *    pBuffer_t buf = NULL;
  *    const char *test_msg = "Hello World!";
  *
- *    buf = create_buffer(BLEN, TSIZE);
+ *    buf = create_buffer(10, TSIZE);
  *    printf("The length of buffer buf is: %ld\n", buffer_len(buf));
  *
  *    resize_buffer(20, buf);
@@ -31,6 +29,8 @@
 
 #ifndef BUFFER_H
 #define BUFFER_H
+
+#include <stdint.h>
 
 #include "common.h"
 
@@ -68,10 +68,10 @@ typedef struct buffer
 /* Forward function declarations */
 DSC_DECL pBuffer_t   create_buffer(size_t len, size_t tsize);
 DSC_DECL int         free_buffer(pBuffer_t bp);
-DSC_DECL int         resize_buffer(size_t newlen, pBuffer_t bp);
-DSC_DECL int         reset_buffer(unsigned char byte, pBuffer_t bp);
-DSC_DECL size_t      buffer_size(pBuffer_t bp);
-DSC_DECL size_t      buffer_len(pBuffer_t bp);
+DSC_DECL int         resize_buffer(pBuffer_t bp, size_t newlen);
+DSC_DECL int         reset_buffer(pBuffer_t bp, uint8_t byte);
+DSC_DECL ssize_t     buffer_size(pBuffer_t bp);
+DSC_DECL ssize_t     buffer_len(pBuffer_t bp);
 DSC_DECL int         destroy_buffer(pBuffer_t bp);
 
-#endif
+#endif /* BUFFER_H */
