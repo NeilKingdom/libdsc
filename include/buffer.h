@@ -69,7 +69,7 @@ typedef struct buffer
 DSC_DECL pBuffer_t   create_buffer(size_t len, size_t tsize);
 DSC_DECL int         free_buffer(pBuffer_t bp);
 DSC_DECL int         resize_buffer(pBuffer_t bp, size_t newlen);
-DSC_DECL int         reset_buffer(pBuffer_t bp, uint8_t byte);
+DSC_DECL int         clear_buffer(pBuffer_t bp, uint8_t byte);
 DSC_DECL ssize_t     buffer_size(pBuffer_t bp);
 DSC_DECL ssize_t     buffer_len(pBuffer_t bp);
 DSC_DECL int         destroy_buffer(pBuffer_t bp);

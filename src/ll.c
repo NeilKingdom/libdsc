@@ -57,6 +57,7 @@ static int _free_ll_node(pNode_t np) {
  */
 
 DSC_DECL pNode_t create_ll(size_t len, size_t tsize, void *data) {
+   size_t nsize = len * tsize;
    pNode_t head = NULL;
 
    /* Allocate space for the node struct */
@@ -72,6 +73,10 @@ DSC_DECL pNode_t create_ll(size_t len, size_t tsize, void *data) {
       DSC_ERROR("Failed to allocate memory for the node's data");
       return NULL;
    }
+
+   /* Copy data passed by user to the memory segment */
+   /* TODO: nsize may be bigger than memmove allows */
+   memmove(head->data->addr, data, nsize);
 
    return head;
 }
@@ -114,9 +119,10 @@ DSC_DECL int free_ll_node(pNode_t head, unsigned index) {
    pNode_t tmp = head;
    pNode_t prev = tmp; /* Keep track of previous node in case we need to delete last node */
 
-   while (tmp->next && i++ < index) {
+   while (tmp->next && i < index) {
       prev = tmp;
       tmp = tmp->next;
+      i++;
    }
 
    if (i == index) {
@@ -162,8 +168,9 @@ DSC_DECL pNode_t get_ll_node(pNode_t head, unsigned index) {
    int i = 0;
    pNode_t tmp = head;
 
-   while (tmp->next && i++ < index) {
+   while (tmp->next && i < index) {
       tmp = tmp->next;
+      i++;
    }
 
    if (i == index) {
@@ -186,6 +193,24 @@ DSC_DECL int clear_ll_data(pNode_t head, uint8_t byte) {
       }
       tmp = tmp->next;
    }
+
+   return DSC_EOK;
+}
+
+DSC_DECL int delete_ll(pNode_t head) {
+   pNode_t tmp = head;
+   pNode_t prev; 
+
+   while (tmp->next) {
+      prev = tmp;
+      tmp = tmp->next;
+
+      free_buffer(prev->data);
+      _free_ll_node(prev);
+   }
+
+   free_buffer(tmp->data);
+   _free_ll_node(tmp);
 
    return DSC_EOK;
 }
