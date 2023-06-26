@@ -63,7 +63,7 @@ DSC_DECL pBuffer_t create_buffer(size_t len, size_t tsize) {
 }
 
 /**
- * Free an allocated buffer.
+ * Free an alloated buffer.
  *
  * @since 04/06/2022
  * @param[in/out] bp A pointer to a buffer_t

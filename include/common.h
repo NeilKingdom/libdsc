@@ -22,7 +22,7 @@ static void _dsc_error(char *file, const char *func, int line, const char *msg) 
                    "Backtrace:\n\n"
                    "File: %s, Function: %s, Line: %d\n"
                    "Short message: %s\n"
-                   "Errno message: %s\n",
+                   "Errno message: %s\n\n",
                    file, func, line, msg, strerror(errno));
 }
 

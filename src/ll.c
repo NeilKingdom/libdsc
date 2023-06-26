@@ -114,6 +114,7 @@ DSC_DECL int add_ll_node(pNode_t head, size_t len, size_t tsize, void *data) {
    return DSC_EOK;
 }
 
+/* TODO: Doesn't account for deleting head */
 DSC_DECL int free_ll_node(pNode_t head, unsigned index) {
    int i = 0;
    pNode_t tmp = head;
