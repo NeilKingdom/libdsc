@@ -69,7 +69,7 @@ DSC_DECL pBuffer_t create_buffer(size_t len, size_t tsize) {
  * @param[in/out] bp A pointer to a buffer_t
  * @returns A status code representing the state of operations upon completion
  */
-DSC_DECL int free_buffer(pBuffer_t bp) {
+DSC_DECL int destroy_buffer(pBuffer_t bp) {
    int status;
 
    if (!bp || !bp->addr) {
@@ -91,8 +91,6 @@ DSC_DECL int free_buffer(pBuffer_t bp) {
          DSC_ERROR("Failed to unmap pBuffer_t struct");
          return DSC_EFREE;
       }
-
-      bp = NULL;
    }
 
    return DSC_EOK;

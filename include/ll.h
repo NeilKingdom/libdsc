@@ -50,6 +50,6 @@ DSC_DECL int         free_ll_node(pNode_t head, unsigned index);
 DSC_DECL ssize_t     get_ll_len(pNode_t head);
 DSC_DECL pNode_t     get_ll_node(pNode_t head, unsigned index);
 DSC_DECL int         clear_ll_data(pNode_t head, uint8_t byte);
-DSC_DECL int         delete_ll(pNode_t head);
+DSC_DECL int         destroy_ll(pNode_t head);
 
 #endif /* LL_H */

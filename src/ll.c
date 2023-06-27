@@ -198,7 +198,7 @@ DSC_DECL int clear_ll_data(pNode_t head, uint8_t byte) {
    return DSC_EOK;
 }
 
-DSC_DECL int delete_ll(pNode_t head) {
+DSC_DECL int destroy_ll(pNode_t head) {
    pNode_t tmp = head;
    pNode_t prev; 
 

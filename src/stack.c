@@ -40,69 +40,89 @@ DSC_DECL pStack_t create_stack(void) {
 }
 
 DSC_DECL int push(pStack_t stack, size_t len, size_t tsize, void *data) {
-   size_t ssize = stack->stk_off + sizeof(buffer_t);  
-   size_t new_size = ssize + sizeof(buffer_t);
+   size_t old_size, new_size;
+   pBuffer_t new_node;
 
-   /* Check if stacks been initialized */
+   /* Allocate space for intial node if not done */
    if (!stack->base_ptr) {
-      stack->base_ptr = mmap(NULL, sizeof(buffer_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
+      stack->base_ptr = mmap(NULL, sizeof(buffer_t), (PROT_READ | PROT_WRITE), (MAP_ANON | MAP_SHARED), -1, 0);
       if (MAP_FAILED == stack->base_ptr) {
-         DSC_ERROR("Failed to allocate memory for the stack's initial node");
+         DSC_ERROR("Failed to allocate space for the stack");
          return DSC_ERROR;
       }
-   } else { /* Resize stack to fit new data */
-      assert((long)(stack->base_ptr) % sysconf(_SC_PAGE_SIZE) == 0);
-      stack->base_ptr = mremap(stack->base_ptr, ssize, new_size, 0);
+   } else { /* Resize stack */
+      old_size = stack->stk_off + sizeof(buffer_t);
+      new_size = old_size + sizeof(buffer_t);
+      stack->base_ptr = mremap(stack->base_ptr, old_size, new_size, 0);
       if (MAP_FAILED == stack->base_ptr) {
-         DSC_ERROR("Failed to remap stack");
+         DSC_ERROR("Failed to remap the stack");
          return DSC_ERROR;
       }
 
-      stack->stk_off += sizeof(buffer_t);
+      if (stack->pending) {
+         destroy_buffer(stack->pending);
+         stack->pending = NULL;
+      } else {
+         stack->stk_off += sizeof(buffer_t);
+      }
    }
 
-   /* Create pBuffer_t to contain data */
-   pBuffer_t *curr_node = stack->base_ptr + stack->stk_off;
-   *curr_node = create_buffer(len, tsize);
-   if (*curr_node == NULL) {
-      DSC_ERROR("Failed to allocate memory for the stack's initial node");
+   /* Point current node to new buffer */
+   new_node = create_buffer(len, tsize);
+   if (new_node == NULL) {
+      DSC_ERROR("Failed to allocate space for new stack node");
       return DSC_ERROR;
    }
 
-   memmove((*curr_node)->addr, data, buffer_size(*curr_node));
+   /* Put data into new buffer */
+   memmove(new_node->addr, data, buffer_size(new_node));
+   *(stack->base_ptr + stack->stk_off) = new_node; 
 
    return DSC_EOK;
 }
 
 DSC_DECL pBuffer_t pop(pStack_t stack) {
-   size_t ssize = stack->stk_off + sizeof(buffer_t); 
-   size_t new_size = ssize - sizeof(buffer_t);
-
+   size_t old_size, new_size;
+   pBuffer_t curr_node, prev_node;
+   
+   /* Fail if stack has not been allocated */
    if (!stack->base_ptr) {
       DSC_ERROR("The stack points to an invalid address");
       return NULL;
    }
+  
+   /* Destroy pending nodes */
+   if (stack->pending) {
+      destroy_buffer(stack->pending);
+      stack->pending = NULL;
 
-   free_buffer(*(stack->base_ptr + stack->stk_off));
-
-   /* Truncate stack length */
-   if (new_size > 0) {
-      assert((long)(stack->base_ptr) % sysconf(_SC_PAGE_SIZE) == 0);
-      stack->base_ptr = mremap(stack->base_ptr, ssize, new_size, 0);
-      if (MAP_FAILED == stack->base_ptr) {
-         DSC_ERROR("Failed to remap stack");
-         return NULL;
+      old_size = stack->stk_off + sizeof(buffer_t);
+      new_size = old_size - sizeof(buffer_t);
+   
+      /* unmap if last node on the stack */
+      if (new_size == 0) {
+         munmap(stack->base_ptr, sizeof(buffer_t));
+         stack->base_ptr = NULL;
+         /* TODO: Error handling */
+      } else { /* Truncate to the appropriate length */
+         stack->base_ptr = mremap(stack->base_ptr, old_size, new_size, 0);
+         if (MAP_FAILED == stack->base_ptr) {
+            DSC_ERROR("Failed to remap the stack");
+            return NULL;
+         }
       }
 
-      stack->stk_off -= sizeof(buffer_t);
-   } else {
-      munmap(stack->base_ptr, ssize);
-      stack->base_ptr = NULL;
+      if (stack->stk_off > 0) {
+         stack->stk_off -= sizeof(buffer_t);
+      }
+   } 
+
+   /* Can be NULL if unmapped from popping last node */
+   if (stack->base_ptr + stack->stk_off) {
+      stack->pending = *(stack->base_ptr + stack->stk_off);
    }
 
-   /* TODO: Return copy of node that was popped? */
-
-   return NULL;
+   return stack->pending;
 }
 
 DSC_DECL pBuffer_t peek(pStack_t stack) {
@@ -112,4 +132,30 @@ DSC_DECL pBuffer_t peek(pStack_t stack) {
    }
 
    return *(stack->base_ptr + stack->stk_off);
+}
+
+DSC_DECL int destroy_stack(pStack_t stack) {
+   int status; 
+
+   /* Fail if stack has not been allocated */
+   if (!stack || !stack->base_ptr) {
+      DSC_ERROR("The stack points to an invalid address");
+      return DSC_ERROR;
+   } else if (stack) {
+      /* Unmap the array of pointers to each node in the stack */
+      status = munmap(stack->base_ptr, (stack->stk_off + sizeof(buffer_t)));
+      if (status == -1) {
+         DSC_ERROR("Failed to unmap the stack");
+         return DSC_EFREE;
+      }
+
+      /* Unmap the stack struct itself */
+      status = munmap(stack, sizeof(stack_t));
+      if (status == -1) {
+         DSC_ERROR("Failed to unmap the pStack_t struct");
+         return DSC_EFREE;
+      }
+   }
+
+   return DSC_EOK;
 }
