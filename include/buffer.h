@@ -1,32 +1,3 @@
-/**
- * Example Usage:
- *
- * #include "buffer.h"
- *
- * #define BUF_TYPE int
- * #define TSIZE sizeof(BUF_TYPE)
- *
- * int main(void) {
- *    pBuffer_t buf = NULL;
- *    const char *test_msg = "Hello World!";
- *
- *    buf = create_buffer(10, TSIZE);
- *    printf("The length of buffer buf is: %ld\n", buffer_len(buf));
- *
- *    resize_buffer(20, buf);
- *    printf("The new length of buffer buf is: %ld\n", buffer_len(buf));
- *
- *    memcpy(DSC_BUF_VOID(buf), (void *)test_msg, strlen(test_msg) + 1);
- *    printf("Buffer says: %s\n", DSC_BUF_CHAR(buf));
- *
- *    free_buffer(buf);
- *    if (!DSC_BUF_VOID(buf))
- *       printf("Successfully freed buffer!\n");
- *
- *    return 0;
- * }
- */
-
 #ifndef BUFFER_H
 #define BUFFER_H
 
@@ -34,9 +5,8 @@
 
 #include "common.h"
 
-typedef struct buffer
-{
-   void *addr;   /* Address of the memory arena */
+typedef struct buffer {
+   void  *addr;  /* Address of the memory region */
    size_t tsize; /* The datatype size */
    size_t bsize; /* The buffer size */
 } *pBuffer_t, buffer_t;
@@ -45,10 +15,10 @@ typedef struct buffer
 #define DSC_BUF_VOID(buf)        ((void *)((buf).addr))
 #define DSC_BUF_CHAR(buf)        ((char *)((buf).addr))
 #define DSC_BUF_UCHAR(buf)       ((unsigned char *)((buf).addr))
-#define DSC_BUF_SHORT(buf)       ((short *)((buf)->addr))
+#define DSC_BUF_SHORT(buf)       ((short *)((buf).addr))
 #define DSC_BUF_USHORT(buf)      ((unsigned short *)((buf).addr))
 #define DSC_BUF_INT(buf)         ((int *)((buf).addr))
-#define DSC_BUF_UINT (buf)       ((unsigned *)((buf).addr))
+#define DSC_BUF_UINT(buf)        ((unsigned *)((buf).addr))
 #define DSC_BUF_LONG(buf)        ((long *)((buf).addr))
 #define DSC_BUF_ULONG(buf)       ((unsigned long *)((buf).addr))
 #define DSC_BUF_LONG_LONG(buf)   ((long long *)((buf).addr))
@@ -66,37 +36,35 @@ typedef struct buffer
 #define DSC_BUF_INT64(buf)       ((int64_t *)((buf).addr))
 #define DSC_BUF_UINT64(buf)      ((uint64_t *)((buf).addr))
 
-#define DSC_PBUF_VOID(buf)        ((void *)((buf)->addr))
-#define DSC_PBUF_CHAR(buf)        ((char *)((buf)->addr))
-#define DSC_PBUF_UCHAR(buf)       ((unsigned char *)((buf)->addr))
-#define DSC_PBUF_SHORT(buf)       ((short *)((buf)->addr))
-#define DSC_PBUF_USHORT(buf)      ((unsigned short *)((buf)->addr))
-#define DSC_PBUF_INT(buf)         ((int *)((buf)->addr))
-#define DSC_PBUF_UINT (buf)       ((unsigned *)((buf)->addr))
-#define DSC_PBUF_LONG(buf)        ((long *)((buf)->addr))
-#define DSC_PBUF_ULONG(buf)       ((unsigned long *)((buf)->addr))
-#define DSC_PBUF_LONG_LONG(buf)   ((long long *)((buf)->addr))
-#define DSC_PBUF_SIZE_T(buf)      ((size_t *)((buf)->addr))
-#define DSC_PBUF_SSIZE_T(buf)     ((ssize_t *)((buf)->addr))
-#define DSC_PBUF_FLOAT(buf)       ((float *)((buf)->addr))
-#define DSC_PBUF_DOUBLE(buf)      ((double *)((buf)->addr))
+#define DSC_PBUF_VOID(buf)       ((void *)((buf)->addr))
+#define DSC_PBUF_CHAR(buf)       ((char *)((buf)->addr))
+#define DSC_PBUF_UCHAR(buf)      ((unsigned char *)((buf)->addr))
+#define DSC_PBUF_SHORT(buf)      ((short *)((buf)->addr))
+#define DSC_PBUF_USHORT(buf)     ((unsigned short *)((buf)->addr))
+#define DSC_PBUF_INT(buf)        ((int *)((buf)->addr))
+#define DSC_PBUF_UINT(buf)       ((unsigned *)((buf)->addr))
+#define DSC_PBUF_LONG(buf)       ((long *)((buf)->addr))
+#define DSC_PBUF_ULONG(buf)      ((unsigned long *)((buf)->addr))
+#define DSC_PBUF_LONG_LONG(buf)  ((long long *)((buf)->addr))
+#define DSC_PBUF_SIZE_T(buf)     ((size_t *)((buf)->addr))
+#define DSC_PBUF_SSIZE_T(buf)    ((ssize_t *)((buf)->addr))
+#define DSC_PBUF_FLOAT(buf)      ((float *)((buf)->addr))
+#define DSC_PBUF_DOUBLE(buf)     ((double *)((buf)->addr))
 
-#define DSC_PBUF_INT8(buf)        ((int8_t *)((buf)->addr))
-#define DSC_PBUF_UINT8(buf)       ((uint8_t *)((buf)->addr))
-#define DSC_PBUF_INT16(buf)       ((int16_t *)((buf)->addr))
-#define DSC_PBUF_UINT16(buf)      ((uint16_t *)((buf)->addr))
-#define DSC_PBUF_INT32(buf)       ((int32_t *)((buf)->addr))
-#define DSC_PBUF_UINT32(buf)      ((uint32_t *)((buf)->addr))
-#define DSC_PBUF_INT64(buf)       ((int64_t *)((buf)->addr))
-#define DSC_PBUF_UINT64(buf)      ((uint64_t *)((buf)->addr))
+#define DSC_PBUF_INT8(buf)       ((int8_t *)((buf)->addr))
+#define DSC_PBUF_UINT8(buf)      ((uint8_t *)((buf)->addr))
+#define DSC_PBUF_INT16(buf)      ((int16_t *)((buf)->addr))
+#define DSC_PBUF_UINT16(buf)     ((uint16_t *)((buf)->addr))
+#define DSC_PBUF_INT32(buf)      ((int32_t *)((buf)->addr))
+#define DSC_PBUF_UINT32(buf)     ((uint32_t *)((buf)->addr))
+#define DSC_PBUF_INT64(buf)      ((int64_t *)((buf)->addr))
+#define DSC_PBUF_UINT64(buf)     ((uint64_t *)((buf)->addr))
 
 /* Forward function declarations */
-DSC_DECL pBuffer_t   create_buffer(size_t len, size_t tsize);
-DSC_DECL int         free_buffer(pBuffer_t bp);
-DSC_DECL int         resize_buffer(pBuffer_t bp, size_t newlen);
-DSC_DECL int         clear_buffer(pBuffer_t bp, uint8_t byte);
-DSC_DECL ssize_t     buffer_size(pBuffer_t bp);
-DSC_DECL ssize_t     buffer_len(pBuffer_t bp);
-DSC_DECL int         destroy_buffer(pBuffer_t bp);
+DSC_DECL buffer_t    dsc_create_buffer(const size_t len, const size_t tsize);
+DSC_DECL DSC_Error   dsc_clear_buffer(buffer_t buf, const uint8_t byte);
+DSC_DECL size_t      dsc_get_buffer_capacity(buffer_t buf);
+DSC_DECL DSC_Error   dsc_destroy_buffer(pBuffer_t buf);
+DSC_DECL DSC_Error   dsc_resize_buffer(pBuffer_t buf, const size_t newlen);
 
 #endif /* BUFFER_H */

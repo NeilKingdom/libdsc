@@ -5,13 +5,17 @@
 #include "buffer.h"
 
 typedef struct stack {
-   off_t      stk_off;
-   pBuffer_t *base_ptr;
+    buffer_t arena;  // The resizable memory arena for the stack's contents
+    size_t   offset; // An offset into the memory arena
 } *pStack_t, stack_t;
 
-DSC_DECL pStack_t create_stack(void);
-DSC_DECL int push(pStack_t stack, size_t len, size_t tsize, void *data);
-DSC_DECL pBuffer_t pop(pStack_t stack);
-DSC_DECL pBuffer_t peek(pStack_t stack);
+static bool pop_pending = false; // Used so that we can return the data at the address before resizing buffer
 
-#endif
+DSC_DECL stack_t     dsc_create_stack(const size_t tsize);
+DSC_DECL ssize_t     dsc_get_stack_size(pStack_t stack);
+DSC_DECL void       *dsc_peek_stack(pStack_t stack); 
+DSC_DECL void       *dsc_pop_stack(pStack_t stack);
+DSC_DECL DSC_Error   dsc_push_stack(pStack_t stack, void *data);
+DSC_DECL DSC_Error   dsc_destroy_stack(pStack_t stack);
+
+#endif /* STACK_H */

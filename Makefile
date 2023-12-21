@@ -1,5 +1,3 @@
-include setup.mk
-
 CC = gcc
 PROFILE ?= DEBUG
 
@@ -17,7 +15,7 @@ SRCS := $(wildcard $(SRC_DIR)/*.c)
 DEPS := $(patsubst %.c, $(INC_DIR)/%.h, $(SRCS))
 OBJS := $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-CCFLAGS += $(CCFLAGS_$(PROFILE)) -I$(INC_DIR) -Werror -Wall -Wextra -Wformat -ansi -pedantic -std=c99
+CCFLAGS += $(CCFLAGS_$(PROFILE)) -I$(INC_DIR) -Werror -Wall -Wextra -Wformat -pedantic -std=c99
 LDFLAGS += -lc -lcheck
 
 BINS := $(BIN_DIR)/libdsc.a $(BIN_DIR)/libdsc.so
@@ -31,7 +29,7 @@ install: all
 
 # Remove object files and binaries
 clean:
-	rm -rf $(OBJ_DIR)/*.o $(BINS)
+	rm -rf $(OBJ_DIR)/*.o $(BIN_DIR)/*
 
 # Rebuild project
 rebuild: clean all

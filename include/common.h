@@ -4,21 +4,22 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <stdbool.h>
 
 /* Change to static if you want function declarations to be static */
 #define DSC_DECL
 
-enum DSC_Error {
+typedef enum {
    DSC_EOK = 0, /* No error */
    DSC_ERROR,   /* General error */
    DSC_EINVAL,  /* The argument was invalid */
    DSC_ENOMEM,  /* Not enough memory */
    DSC_EFREE,   /* Error freeing memory */
    DSC_EFAULT   /* Bad address */
-};
+} DSC_Error;
 
 static void _dsc_error(char *file, const char *func, int line, const char *msg) {
-   fprintf(stderr, "\n=========== ERROR ===========\n" 
+   fprintf(stderr, "\n=========== ERROR ===========\n"
                    "Backtrace:\n\n"
                    "File: %s, Function: %s, Line: %d\n"
                    "Short message: %s\n"

@@ -1,7 +1,7 @@
 /**
  * This file provides functionality for building a
  * standard linked list. Definitions for doubly
- * linked lists are provided in dll.c. 
+ * linked lists are provided in dll.c.
  *
  * @file
  * @author Neil Kingdom
@@ -30,7 +30,7 @@
  * @param [in] np A pointer to a node_t
  * @returns A status code representing the state of operations upon completion
  */
-static int _free_ll_node(pNode_t np) {
+static int _dsc_del_ll_node(pNode_t np) {
    int status;
 
    if (!np) {
@@ -56,7 +56,7 @@ static int _free_ll_node(pNode_t np) {
  * ===============================
  */
 
-DSC_DECL pNode_t create_ll(size_t len, size_t tsize, void *data) {
+DSC_DECL pNode_t dsc_create_ll(const size_t len, const size_t tsize, void *data) {
    size_t nsize = len * tsize;
    pNode_t head = NULL;
 
@@ -68,20 +68,20 @@ DSC_DECL pNode_t create_ll(size_t len, size_t tsize, void *data) {
    }
 
    head->next = NULL;
-   head->data = create_buffer(len, tsize);
-   if (head->data == NULL) {
+   head->data = dsc_create_buffer(len, tsize);
+   if (head->data.addr == NULL) {
       DSC_ERROR("Failed to allocate memory for the node's data");
       return NULL;
    }
 
    /* Copy data passed by user to the memory segment */
    /* TODO: nsize may be bigger than memmove allows */
-   memmove(head->data->addr, data, nsize);
+   memmove(head->data.addr, data, nsize);
 
    return head;
 }
 
-DSC_DECL int add_ll_node(pNode_t head, size_t len, size_t tsize, void *data) {
+DSC_DECL DSC_Error dsc_add_ll_node(pNode_t head, const size_t len, const size_t tsize, void *data) {
    size_t nsize = len * tsize;
    pNode_t new_node = NULL;
    pNode_t tmp = head;
@@ -99,15 +99,15 @@ DSC_DECL int add_ll_node(pNode_t head, size_t len, size_t tsize, void *data) {
 
    /* Allocate space for the node's data */
    new_node->next = NULL;
-   new_node->data = create_buffer(len, tsize);
-   if (new_node->data == NULL) {
+   new_node->data = dsc_create_buffer(len, tsize);
+   if (new_node->data.addr == NULL) {
       DSC_ERROR("Failed to allocate memory for the node's data");
       return DSC_ERROR;
    }
 
    /* Copy data passed by user to the memory segment */
    /* TODO: nsize may be bigger than memmove allows */
-   memmove(new_node->data->addr, data, nsize);
+   memmove(new_node->data.addr, data, nsize);
 
    tmp->next = new_node;
 
@@ -115,7 +115,7 @@ DSC_DECL int add_ll_node(pNode_t head, size_t len, size_t tsize, void *data) {
 }
 
 /* TODO: Doesn't account for deleting head */
-DSC_DECL int free_ll_node(pNode_t head, unsigned index) {
+DSC_DECL DSC_Error dsc_del_ll_node(pNode_t head, const unsigned index) {
    int i = 0;
    pNode_t tmp = head;
    pNode_t prev = tmp; /* Keep track of previous node in case we need to delete last node */
@@ -128,20 +128,20 @@ DSC_DECL int free_ll_node(pNode_t head, unsigned index) {
 
    if (i == index) {
       if (tmp->next && tmp->next->next) {
-         free_buffer(tmp->next->data); 
-         _free_ll_node(tmp->next);     
+         dsc_destroy_buffer(&tmp->next->data);
+         _dsc_del_ll_node(tmp->next);
          tmp->next = tmp->next->next;
       } else if (tmp->next) { /* Deleting second to last node */
-         free_buffer(tmp->next->data);
-         _free_ll_node(tmp->next);
+         dsc_destroy_buffer(&tmp->next->data);
+         _dsc_del_ll_node(tmp->next);
          tmp->next = NULL;
       } else { /* Deleting last node in the list */
          if (prev == tmp) { /* Last node is the only node left */
-            free_buffer(tmp->data);
-            _free_ll_node(tmp);
+            dsc_destroy_buffer(&tmp->data);
+            _dsc_del_ll_node(tmp);
          } else { /* Last node is not the only node left */
-            free_buffer(tmp->data);
-            _free_ll_node(tmp);
+            dsc_destroy_buffer(&tmp->data);
+            _dsc_del_ll_node(tmp);
             prev->next = NULL;
          }
       }
@@ -153,7 +153,7 @@ DSC_DECL int free_ll_node(pNode_t head, unsigned index) {
    return DSC_EOK;
 }
 
-DSC_DECL ssize_t get_ll_len(pNode_t head) {
+DSC_DECL ssize_t dsc_get_ll_len(pNode_t head) {
    ssize_t i = 1;
    pNode_t tmp = head;
 
@@ -165,7 +165,7 @@ DSC_DECL ssize_t get_ll_len(pNode_t head) {
    return i;
 }
 
-DSC_DECL pNode_t get_ll_node(pNode_t head, unsigned index) {
+DSC_DECL pNode_t dsc_get_ll_node(pNode_t head, const unsigned index) {
    int i = 0;
    pNode_t tmp = head;
 
@@ -182,12 +182,12 @@ DSC_DECL pNode_t get_ll_node(pNode_t head, unsigned index) {
    }
 }
 
-DSC_DECL int clear_ll_data(pNode_t head, uint8_t byte) {
+DSC_DECL DSC_Error dsc_clear_ll(pNode_t head, const uint8_t byte) {
    int status;
    pNode_t tmp = head;
 
    while (tmp->next) {
-      status = clear_buffer(tmp->data, byte);
+      status = dsc_clear_buffer(tmp->data, byte);
       if (status != DSC_EOK) {
          DSC_ERROR("Failed to clear data for node");
          return status;
@@ -198,20 +198,20 @@ DSC_DECL int clear_ll_data(pNode_t head, uint8_t byte) {
    return DSC_EOK;
 }
 
-DSC_DECL int destroy_ll(pNode_t head) {
+DSC_DECL DSC_Error dsc_destroy_ll(pNode_t head) {
    pNode_t tmp = head;
-   pNode_t prev; 
+   pNode_t prev;
 
    while (tmp->next) {
       prev = tmp;
       tmp = tmp->next;
 
-      free_buffer(prev->data);
-      _free_ll_node(prev);
+      dsc_destroy_buffer(&prev->data);
+      _dsc_del_ll_node(prev);
    }
 
-   free_buffer(tmp->data);
-   _free_ll_node(tmp);
+   dsc_destroy_buffer(&tmp->data);
+   _dsc_del_ll_node(tmp);
 
    return DSC_EOK;
 }
