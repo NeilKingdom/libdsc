@@ -24,13 +24,13 @@
  */
 
 /**
- * Free an allocated pNode_t struct.
+ * Free an allocated pLLNode_t struct.
  *
  * @since 06/22/2023
- * @param [in] np A pointer to a node_t
+ * @param [in] np A pointer to a LLNode_t
  * @returns A status code representing the state of operations upon completion
  */
-static int _dsc_del_ll_node(pNode_t np) {
+static int _dsc_del_ll_node(pLLNode_t np) {
    int status;
 
    if (!np) {
@@ -38,9 +38,9 @@ static int _dsc_del_ll_node(pNode_t np) {
       return DSC_EFAULT;
    } else {
       assert((long)np % sysconf(_SC_PAGE_SIZE) == 0);
-      status = munmap(np, sizeof(node_t));
+      status = munmap(np, sizeof(LLNode_t));
       if (status != 0) {
-         DSC_ERROR("Failed to unmap pNode_t struct");
+         DSC_ERROR("Failed to unmap pLLNode_t struct");
          return DSC_EFREE;
       }
 
@@ -56,58 +56,54 @@ static int _dsc_del_ll_node(pNode_t np) {
  * ===============================
  */
 
-DSC_DECL pNode_t dsc_create_ll(const size_t len, const size_t tsize, void *data) {
-   size_t nsize = len * tsize;
-   pNode_t head = NULL;
+DSC_DECL pLLNode_t dsc_create_ll(const size_t tsize, void *data) {
+   pLLNode_t head = NULL;
 
    /* Allocate space for the node struct */
-   head = mmap(NULL, sizeof(node_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
+   head = mmap(NULL, sizeof(LLNode_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
    if (MAP_FAILED == head) {
-      DSC_ERROR("Failed to allocate memory for pNode_t");
+      DSC_ERROR("Failed to allocate memory for pLLNode_t");
       return NULL;
    }
 
    head->next = NULL;
-   head->data = dsc_create_buffer(len, tsize);
+   head->data = dsc_create_buffer(1, tsize);
    if (head->data.addr == NULL) {
       DSC_ERROR("Failed to allocate memory for the node's data");
       return NULL;
    }
 
    /* Copy data passed by user to the memory segment */
-   /* TODO: nsize may be bigger than memmove allows */
-   memmove(head->data.addr, data, nsize);
+   memcpy(head->data.addr, data, tsize);
 
    return head;
 }
 
-DSC_DECL DSC_Error dsc_add_ll_node(pNode_t head, const size_t len, const size_t tsize, void *data) {
-   size_t nsize = len * tsize;
-   pNode_t new_node = NULL;
-   pNode_t tmp = head;
+DSC_DECL DSC_Error dsc_add_ll_node(pLLNode_t head, void *data) {
+   pLLNode_t new_node = NULL;
+   pLLNode_t tmp = head;
 
    while (tmp->next) {
       tmp = tmp->next;
    }
 
    /* Allocate space for the node struct */
-   new_node = mmap(NULL, sizeof(node_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
+   new_node = mmap(NULL, sizeof(LLNode_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
    if (MAP_FAILED == new_node) {
-      DSC_ERROR("Failed to allocate memory for pNode_t");
+      DSC_ERROR("Failed to allocate memory for pLLNode_t");
       return DSC_ERROR;
    }
 
    /* Allocate space for the node's data */
    new_node->next = NULL;
-   new_node->data = dsc_create_buffer(len, tsize);
+   new_node->data = dsc_create_buffer(1, head->data.tsize);
    if (new_node->data.addr == NULL) {
       DSC_ERROR("Failed to allocate memory for the node's data");
       return DSC_ERROR;
    }
 
    /* Copy data passed by user to the memory segment */
-   /* TODO: nsize may be bigger than memmove allows */
-   memmove(new_node->data.addr, data, nsize);
+   memcpy(new_node->data.addr, data, head->data.tsize);
 
    tmp->next = new_node;
 
@@ -115,10 +111,10 @@ DSC_DECL DSC_Error dsc_add_ll_node(pNode_t head, const size_t len, const size_t 
 }
 
 /* TODO: Doesn't account for deleting head */
-DSC_DECL DSC_Error dsc_del_ll_node(pNode_t head, const unsigned index) {
+DSC_DECL DSC_Error dsc_del_ll_node(pLLNode_t head, const unsigned index) {
    int i = 0;
-   pNode_t tmp = head;
-   pNode_t prev = tmp; /* Keep track of previous node in case we need to delete last node */
+   pLLNode_t tmp = head;
+   pLLNode_t prev = tmp; /* Keep track of previous node in case we need to delete last node */
 
    while (tmp->next && i < index) {
       prev = tmp;
@@ -153,9 +149,10 @@ DSC_DECL DSC_Error dsc_del_ll_node(pNode_t head, const unsigned index) {
    return DSC_EOK;
 }
 
-DSC_DECL ssize_t dsc_get_ll_len(pNode_t head) {
+/* TODO: Add check to see if head contains data */
+DSC_DECL ssize_t dsc_get_ll_len(pLLNode_t head) {
    ssize_t i = 1;
-   pNode_t tmp = head;
+   pLLNode_t tmp = head;
 
    while (tmp->next) {
       tmp = tmp->next;
@@ -165,9 +162,9 @@ DSC_DECL ssize_t dsc_get_ll_len(pNode_t head) {
    return i;
 }
 
-DSC_DECL pNode_t dsc_get_ll_node(pNode_t head, const unsigned index) {
+DSC_DECL pLLNode_t dsc_get_ll_node(pLLNode_t head, const unsigned index) {
    int i = 0;
-   pNode_t tmp = head;
+   pLLNode_t tmp = head;
 
    while (tmp->next && i < index) {
       tmp = tmp->next;
@@ -182,9 +179,9 @@ DSC_DECL pNode_t dsc_get_ll_node(pNode_t head, const unsigned index) {
    }
 }
 
-DSC_DECL DSC_Error dsc_clear_ll(pNode_t head, const uint8_t byte) {
+DSC_DECL DSC_Error dsc_clear_ll(pLLNode_t head, const uint8_t byte) {
    int status;
-   pNode_t tmp = head;
+   pLLNode_t tmp = head;
 
    while (tmp->next) {
       status = dsc_clear_buffer(tmp->data, byte);
@@ -198,9 +195,9 @@ DSC_DECL DSC_Error dsc_clear_ll(pNode_t head, const uint8_t byte) {
    return DSC_EOK;
 }
 
-DSC_DECL DSC_Error dsc_destroy_ll(pNode_t head) {
-   pNode_t tmp = head;
-   pNode_t prev;
+DSC_DECL DSC_Error dsc_destroy_ll(pLLNode_t head) {
+   pLLNode_t tmp = head;
+   pLLNode_t prev;
 
    while (tmp->next) {
       prev = tmp;
