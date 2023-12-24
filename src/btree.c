@@ -18,7 +18,7 @@ DSC_DECL pBTreeNode_t dsc_create_btree(const size_t tsize, void *data) {
 
     /* Allocate buffer space for data */
     root->data = dsc_create_buffer(1, tsize);
-    if (root->data.addr == NULL) {
+    if (!root->data.addr) {
         DSC_ERROR("Failed to allocate memory for the node's data");
         return NULL;
     }
@@ -38,9 +38,9 @@ DSC_DECL DSC_Error dsc_destroy_btree(pBTreeNode_t root) {
     } 
 
     /* Post-order deletion so that root is deleted last */
-    if (root->left != NULL) {
+    if (root->left) {
         dsc_destroy_btree(root->left);
-    } else if (root->right != NULL) {
+    } else if (root->right) {
         dsc_destroy_btree(root->right);
     } else {
         dsc_destroy_buffer(&root->data);
@@ -56,30 +56,24 @@ DSC_DECL DSC_Error dsc_destroy_btree(pBTreeNode_t root) {
 }
 
 static DSC_Error _dsc_add_btree_node(const pBTreeNode_t root, const pBTreeNode_t new_node, insert_func inf) {
-    InsertCriteria sc = inf(root, new_node); 
-
-    switch (sc) {
+    switch (inf(root, new_node)) {
         case INSERT_LT: {
-            if (root->left == NULL) {
+            if (!root->left) {
                 root->left = new_node;
                 return DSC_EOK;
             } else {
-                _dsc_add_btree_node(root->left, new_node, inf);
-                break;
+                return _dsc_add_btree_node(root->left, new_node, inf);
             }
         }
         case INSERT_GT: {
-            if (root->right == NULL) {
+            if (!root->right) {
                 root->right = new_node;
                 return DSC_EOK;
             } else {
-                _dsc_add_btree_node(root->right, new_node, inf);
-                break;
+                return _dsc_add_btree_node(root->right, new_node, inf);
             }
         }
     }
-
-    return DSC_ERROR;
 }
 
 DSC_DECL DSC_Error dsc_add_btree_node(const pBTreeNode_t root, void *data, insert_func inf) {
@@ -99,7 +93,7 @@ DSC_DECL DSC_Error dsc_remove_btree_node(restrict pBTreeNode_t root, sort_func s
     }
 
     pBTreeNode_t node = dsc_get_btree_node(root, sf);
-    if (node == NULL) {
+    if (!node) {
         DSC_ERROR("No nodes matching the sort function were found for removal");
         return DSC_ERROR;
     } else {
@@ -109,35 +103,39 @@ DSC_DECL DSC_Error dsc_remove_btree_node(restrict pBTreeNode_t root, sort_func s
     return DSC_EOK;
 }
 
-DSC_DECL pBTreeNode_t dsc_get_btree_node(const restrict pBTreeNode_t root, sort_func sf) {
-    SortCriteria sc = sf(root);
-
-    /* Could not find node specified */
-    if (!root ||
-        (sc == SORT_LT && root->left == NULL) ||
-        (sc == SORT_GT && root->right == NULL)) {
-        return NULL;
-    }
-
-    switch (sc) {
+static pBTreeNode_t _dsc_get_btree_node(const restrict pBTreeNode_t root, sort_func sf) {
+    switch (sf(root)) {
         case SORT_EQ: {
             return root;
         }
         case SORT_LT: {
-            dsc_get_btree_node(root->left, sf);
-            break;
+            if (root->left) {
+                return dsc_get_btree_node(root->left, sf);
+            } else {
+                return NULL;
+            }
         }
         case SORT_GT: {
-            dsc_get_btree_node(root->right, sf);
-            break;
+            if (root->right) {
+                return dsc_get_btree_node(root->right, sf);
+            } else {
+                return NULL;
+            }
         }
     }
+}
 
-    return NULL;
+DSC_DECL pBTreeNode_t dsc_get_btree_node(const restrict pBTreeNode_t root, sort_func sf) {
+    if (!root) {
+        DSC_ERROR("The node points to an invalid address");
+        return NULL;
+    }
+
+    return _dsc_get_btree_node(root, sf);
 }
 
 /* TODO: Implement */
-static pBTreeNode_t _dsc_get_parent_btree_node(
+static pBTreeNode_t _dsc_get_btree_node_parent(
     const restrict pBTreeNode_t root, 
     const restrict pBTreeNode_t child
 ) {
@@ -155,33 +153,37 @@ DSC_DECL pBTreeNode_t dsc_get_btree_node_parent(const restrict pBTreeNode_t root
         return NULL;
     }
     
-    return _dsc_get_parent_btree_node(root, child);
+    return _dsc_get_btree_node_parent(root, child);
 }
 
 /* TODO: This is just a temporary solution */
 static unsigned idx;
 
 static void _dsc_get_btree_node_list_in_order(restrict pBTreeNode_t root, pBTreeNode_t * restrict list) {
-    if (!root) return;
-
-    _dsc_get_btree_node_list_in_order(root->left, list);
+    if (root->left) {
+        _dsc_get_btree_node_list_in_order(root->left, list);
+    }
     list[idx++] = root;
-    _dsc_get_btree_node_list_in_order(root->right, list);
+    if (root->right) {
+        _dsc_get_btree_node_list_in_order(root->right, list);
+    }
 }
 
 static void _dsc_get_btree_node_list_pre_order(restrict pBTreeNode_t root, pBTreeNode_t * restrict list) {
-    if (!root) return;
-
     list[idx++] = root;
-    _dsc_get_btree_node_list_pre_order(root->left, list);
-    _dsc_get_btree_node_list_pre_order(root->right, list);
+    if (root->left) {
+        _dsc_get_btree_node_list_pre_order(root->left, list);
+    } else if (root->right) {
+        _dsc_get_btree_node_list_pre_order(root->right, list);
+    }
 }
 
 static void _dsc_get_btree_node_list_post_order(restrict pBTreeNode_t root, pBTreeNode_t * restrict list) {
-    if (!root) return;
-
-    _dsc_get_btree_node_list_post_order(root->left, list);
-    _dsc_get_btree_node_list_post_order(root->right, list);
+    if (root->left) {
+        _dsc_get_btree_node_list_post_order(root->left, list);
+    } else if (root->right) {
+        _dsc_get_btree_node_list_post_order(root->right, list);
+    }
     list[idx++] = root;
 }
 
