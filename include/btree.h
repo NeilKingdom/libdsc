@@ -5,8 +5,8 @@
 #include "buffer.h"
 
 typedef struct BTreeNode {
-    size_t           id;
-    buffer_t         data;
+    size_t            id;
+    buffer_t          data;
     struct BTreeNode *left;
     struct BTreeNode *right;
 } *pBTreeNode_t, BTreeNode_t;
@@ -33,15 +33,13 @@ typedef InsertCriteria (* const insert_func)(const pBTreeNode_t comp_to, const p
 
 static size_t next_id;
 
-DSC_DECL pBTreeNode_t   dsc_create_btree(const size_t tsize, void *data);
-DSC_DECL DSC_Error      dsc_add_btree_node(const pBTreeNode_t root, void *data, insert_func inf);
+DSC_DECL pBTreeNode_t   dsc_create_btree(const size_t len, const size_t tsize, void *data);
+DSC_DECL DSC_Error      dsc_add_btree_node(const pBTreeNode_t root, void *data, const size_t len, insert_func inf);
 /* TODO: Add DFSMethod */
 DSC_DECL pBTreeNode_t   dsc_get_btree_node(const pBTreeNode_t root, sort_func sf);
-/* TODO: Should accept list length */
-DSC_DECL void           dsc_get_btree_node_list(const pBTreeNode_t root, pBTreeNode_t *list, const DFSMethod method);
+DSC_DECL void           dsc_get_btree_node_list(const pBTreeNode_t root, pBTreeNode_t *list, const size_t list_size, const DFSMethod method);
 DSC_DECL pBTreeNode_t   dsc_get_btree_node_parent(const pBTreeNode_t root, sort_func sf);
 DSC_DECL DSC_Error      dsc_remove_btree_node(pBTreeNode_t root, sort_func sf);
 DSC_DECL DSC_Error      dsc_destroy_btree(pBTreeNode_t root);
-DSC_DECL size_t         dsc_get_next_btree_id(void);
 
 #endif /* BTREE_H */
