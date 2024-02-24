@@ -15,10 +15,10 @@ static InsertCriteria remove_btree_node_insert_func(const pBTreeNode_t comp_to, 
 
     /* Sort alphabetically */
     for (i = 0; i < min; ++i) {
-        if (tolower((int)node_as_str[i]) < tolower((int)comp_to_as_str[i])) {
-            return INSERT_LT;
-        } else if (tolower((int)node_as_str[i]) > tolower((int)comp_to_as_str[i])) {
+        if (tolower((int)node_as_str[i]) > tolower((int)comp_to_as_str[i])) {
             return INSERT_GT;
+        } else if (tolower((int)node_as_str[i]) < tolower((int)comp_to_as_str[i])) {
+            return INSERT_LT;
         } else {
             continue;
         }
@@ -46,7 +46,7 @@ int main(void) {
     const char *expected[] = { "a", "sentence", "words" };
     int ssize = sizeof(sentence) / sizeof(*sentence); 
     int esize = sizeof(expected) / sizeof(*expected); 
-    pBTreeNode_t root = dsc_create_btree(strlen(sentence[0]) + 1, sizeof(sentence[0]), (void*)sentence[0]);
+    pBTreeNode_t root = dsc_create_btree(strlen(sentence[0]) + 1, sizeof(char), (void*)sentence[0]);
     pBTreeNode_t *list = malloc(sizeof(pBTreeNode_t) * esize);
 
     for (i = 1; i < ssize; ++i) {

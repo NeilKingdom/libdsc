@@ -39,17 +39,19 @@ DSC_DECL DSC_Error dsc_destroy_btree(restrict pBTreeNode_t root) {
     /* Post-order deletion so that root is deleted last */
     if (root->left) {
         dsc_destroy_btree(root->left);
-    } else if (root->right) {
+    } 
+    if (root->right) {
         dsc_destroy_btree(root->right);
-    } else {
-        dsc_destroy_buffer(&root->data);
-        assert((long)root % sysconf(_SC_PAGE_SIZE) == 0);
-        status = munmap(root, sizeof(*root));
-        if (status != 0) {
-            DSC_ERROR("Failed to unmap pBTreeNode_t struct");
-            return DSC_EFREE;
-        }
+    } 
+
+    dsc_destroy_buffer(&root->data);
+    assert((long)root % sysconf(_SC_PAGE_SIZE) == 0);
+    status = munmap(root, sizeof(*root));
+    if (status != 0) {
+        DSC_ERROR("Failed to unmap pBTreeNode_t struct");
+        return DSC_EFREE;
     }
+    root = NULL;
 
     return DSC_EOK;
 }
@@ -179,7 +181,8 @@ static void _dsc_get_btree_node_list_in_order(
     pBTreeNode_t * restrict list, 
     const size_t list_size
 ) {
-    if (idx == list_size) return;
+    if (!root || idx == (list_size - 1)) 
+        return;
 
     if (root->left) {
         _dsc_get_btree_node_list_in_order(root->left, list, list_size);
@@ -195,12 +198,14 @@ static void _dsc_get_btree_node_list_pre_order(
     pBTreeNode_t * restrict list, 
     const size_t list_size 
 ) {
-    if (idx == list_size) return;
+    if (!root || idx == (list_size - 1)) 
+        return;
 
     list[idx++] = root;
     if (root->left) {
         _dsc_get_btree_node_list_pre_order(root->left, list, list_size);
-    } else if (root->right) {
+    } 
+    if (root->right) {
         _dsc_get_btree_node_list_pre_order(root->right, list, list_size);
     }
 }
@@ -210,11 +215,13 @@ static void _dsc_get_btree_node_list_post_order(
     pBTreeNode_t * restrict list, 
     const size_t list_size 
 ) {
-    if (idx == list_size) return;
+    if (!root || idx == (list_size - 1)) 
+        return;
 
     if (root->left) {
         _dsc_get_btree_node_list_post_order(root->left, list, list_size);
-    } else if (root->right) {
+    } 
+    if (root->right) {
         _dsc_get_btree_node_list_post_order(root->right, list, list_size);
     }
     list[idx++] = root;
