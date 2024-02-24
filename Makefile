@@ -5,17 +5,19 @@ CCFLAGS_DEBUG = -ggdb -O0 -fno-builtin -DDEBUG
 CCFLAGS_RELEASE = -O2
 
 SRC_DIR := src
-OBJ_DIR := $(PROJ_DIR)/obj
-INC_DIR := $(PROJ_DIR)/include
-BIN_DIR := $(PROJ_DIR)/bin
-TEST_DIR := $(PROJ_DIR)/test
+OBJ_DIR := obj
+INC_DIR := include
+BIN_DIR := bin
+TEST_DIR := test
+
+TGT_INC_DIR := /usr/include/
+TGT_BIN_DIR := /usr/lib/
 
 SRCS := $(wildcard $(SRC_DIR)/*.c)
-# TODO: Fix expansion. Expands as /home/neil/.../obj/src/%.o
-DEPS := $(patsubst %.c, $(INC_DIR)/%.h, $(SRCS))
-OBJS := $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
+DEPS := $(wildcard $(SRC_DIR)/*.h)
+OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-CCFLAGS += $(CCFLAGS_$(PROFILE)) -I$(INC_DIR) -Werror -Wall -Wextra -Wformat -pedantic -std=c99
+CCFLAGS += $(CCFLAGS_$(PROFILE)) -I$(INC_DIR) -std=c99 -Wall -Wextra -Wformat -Werror
 LDFLAGS += -lc -lcheck
 
 BINS := $(BIN_DIR)/libdsc.a $(BIN_DIR)/libdsc.so
@@ -25,7 +27,8 @@ all: $(BINS)
 
 # Copy libraries to /usr/lib
 install: all
-	cp -t /usr/lib/ $(BINS)
+	cp $(BINS) $(TGT_BIN_DIR)
+	cp $(INC_DIR)/*.h $(TGT_INC_DIR)
 
 # Remove object files and binaries
 clean:
@@ -36,23 +39,18 @@ rebuild: clean all
 
 # Create static library
 $(BIN_DIR)/libdsc.a: $(OBJS)
-	ar rcs $@ $(OBJS)
+	ar rcs $@ $^
 
 # Create dynamic library
 $(BIN_DIR)/libdsc.so: $(OBJS)
 	$(CC) -o $@ $^ -shared -fPIC $(CCFLAGS) $(LDFLAGS)
-	strip $(BIN_DIR)/libdsc.so
+	strip ./bin/libdsc.so
 
 # Create objects
 $(OBJ_DIR)/%.o: $(SRCS) $(DEPS)
 	$(CC) $< -c -o $@ $(CCFLAGS)
 
 # TODO: Modify test to include all tests
-test: $(BIN_DIR)/buffer_test
-	./$(BIN_DIR)/buffer_test
-
-$(BIN_DIR)/buffer_test: $(OBJS)
-	$(CC) -c $(TEST_DIR)/buffer_test.c -o $(OBJ_DIR)/buffer_test.o $(CCFLAGS)
-	$(CC) $(OBJ_DIR)/buffer_test.o $(OBJ_DIR)/buffer.o -o $@ $(CCFLAGS) $(LDFLAGS)
+test: all
 
 .PHONY: all install clean rebuild test

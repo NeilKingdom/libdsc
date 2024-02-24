@@ -1,18 +1,10 @@
 /**
- * This source file provides basic functionality for
- * creating a generic buffer. It is used by all other
- * data structures, and is thus the cornerstone of the
- * library.
- *
- * @file
+ * @file buffer.c
  * @author Neil Kingdom
  * @version 1.0
- * @since 04/06/2022
+ * @since 04-06-2022
+ * @brief This source file provides basic functionality for creating a generic buffer
 */
-#define _GNU_SOURCE
-#include <unistd.h>
-#include <assert.h>
-#include <sys/mman.h>
 
 #include "../include/buffer.h"
 

@@ -1,0 +1,235 @@
+\doxysection{/home/neil/devel/projects/libdsc/src/btree.c File Reference}
+\hypertarget{btree_8c}{}\label{btree_8c}\index{/home/neil/devel/projects/libdsc/src/btree.c@{/home/neil/devel/projects/libdsc/src/btree.c}}
+
+
+Provides functions for creating, deleting, and manipulating binary trees.  
+
+
+{\ttfamily \#include "{}../include/btree.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{btree_8c_a5f8dc085007f03c4f7c0c773b0bb97cc}\label{btree_8c_a5f8dc085007f03c4f7c0c773b0bb97cc} 
+static DSC\+\_\+\+Error {\bfseries \+\_\+dsc\+\_\+add\+\_\+btree\+\_\+node} (restrict p\+BTree\+Node\+\_\+t root, const restrict p\+BTree\+Node\+\_\+t new\+\_\+node, insert\+\_\+func inf)
+\item 
+\Hypertarget{btree_8c_a6c0b833e7669366b952441f403f73136}\label{btree_8c_a6c0b833e7669366b952441f403f73136} 
+static p\+BTree\+Node\+\_\+t {\bfseries \+\_\+dsc\+\_\+get\+\_\+btree\+\_\+node} (const restrict p\+BTree\+Node\+\_\+t root, sort\+\_\+func sf)
+\item 
+\Hypertarget{btree_8c_ad8a6403676cfd4213cbd21ca026444c9}\label{btree_8c_ad8a6403676cfd4213cbd21ca026444c9} 
+static p\+BTree\+Node\+\_\+t {\bfseries \+\_\+dsc\+\_\+get\+\_\+btree\+\_\+node\+\_\+parent} (const restrict p\+BTree\+Node\+\_\+t root, const restrict p\+BTree\+Node\+\_\+t prev\+\_\+node, sort\+\_\+func sf)
+\item 
+\Hypertarget{btree_8c_a345d712765a4de1c9f0a0d139fae17c3}\label{btree_8c_a345d712765a4de1c9f0a0d139fae17c3} 
+static void {\bfseries \+\_\+dsc\+\_\+get\+\_\+btree\+\_\+node\+\_\+list\+\_\+in\+\_\+order} (restrict p\+BTree\+Node\+\_\+t root, p\+BTree\+Node\+\_\+t \texorpdfstring{$\ast$}{*}restrict list, const size\+\_\+t list\+\_\+size)
+\item 
+\Hypertarget{btree_8c_a1e45185cfbadb981565a5954e2df1226}\label{btree_8c_a1e45185cfbadb981565a5954e2df1226} 
+static void {\bfseries \+\_\+dsc\+\_\+get\+\_\+btree\+\_\+node\+\_\+list\+\_\+pre\+\_\+order} (restrict p\+BTree\+Node\+\_\+t root, p\+BTree\+Node\+\_\+t \texorpdfstring{$\ast$}{*}restrict list, const size\+\_\+t list\+\_\+size)
+\item 
+\Hypertarget{btree_8c_a581d1f305830954661908a20f4f11d1e}\label{btree_8c_a581d1f305830954661908a20f4f11d1e} 
+static void {\bfseries \+\_\+dsc\+\_\+get\+\_\+btree\+\_\+node\+\_\+list\+\_\+post\+\_\+order} (restrict p\+BTree\+Node\+\_\+t root, p\+BTree\+Node\+\_\+t \texorpdfstring{$\ast$}{*}restrict list, const size\+\_\+t list\+\_\+size)
+\item 
+DSC\+\_\+\+DECL p\+BTree\+Node\+\_\+t \mbox{\hyperlink{btree_8c_a92719f498e5b08a35ab0d437c823a9a5}{dsc\+\_\+create\+\_\+btree}} (const size\+\_\+t len, const size\+\_\+t tsize, const void \texorpdfstring{$\ast$}{*}restrict data)
+\begin{DoxyCompactList}\small\item\em Create the root node for a binary tree. \end{DoxyCompactList}\item 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error \mbox{\hyperlink{btree_8c_a361c859eb3ced2bc319880f3600d4c59}{dsc\+\_\+add\+\_\+btree\+\_\+node}} (restrict p\+BTree\+Node\+\_\+t root, const void \texorpdfstring{$\ast$}{*}data, const size\+\_\+t len, insert\+\_\+func inf)
+\begin{DoxyCompactList}\small\item\em Add a new node to an existing tree. \end{DoxyCompactList}\item 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error \mbox{\hyperlink{btree_8c_acb9804996a5ffc476308fc9410a7e665}{dsc\+\_\+destroy\+\_\+btree}} (restrict p\+BTree\+Node\+\_\+t root)
+\begin{DoxyCompactList}\small\item\em Destroy a binary tree. \end{DoxyCompactList}\item 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error \mbox{\hyperlink{btree_8c_a1d0488c92867694fb3383a99ade5e18b}{dsc\+\_\+remove\+\_\+btree\+\_\+node}} (restrict p\+BTree\+Node\+\_\+t root, sort\+\_\+func sf)
+\begin{DoxyCompactList}\small\item\em Remove a node from an existing tree, alongside its descendants. \end{DoxyCompactList}\item 
+DSC\+\_\+\+DECL p\+BTree\+Node\+\_\+t \mbox{\hyperlink{btree_8c_a3ae1c9e06d9a508d029d51b1e93e2b6f}{dsc\+\_\+get\+\_\+btree\+\_\+node}} (const restrict p\+BTree\+Node\+\_\+t root, sort\+\_\+func sf)
+\begin{DoxyCompactList}\small\item\em Returns a node from the tree matching the criteria of sf if it exists. \end{DoxyCompactList}\item 
+DSC\+\_\+\+DECL p\+BTree\+Node\+\_\+t \mbox{\hyperlink{btree_8c_a5836c42a42c4d16d7bc2f30eaa1d1bfc}{dsc\+\_\+get\+\_\+btree\+\_\+node\+\_\+parent}} (const restrict p\+BTree\+Node\+\_\+t root, sort\+\_\+func sf)
+\begin{DoxyCompactList}\small\item\em Returns a node\textquotesingle{}s parent from the tree matching the criteria of sf if it exists. \end{DoxyCompactList}\item 
+DSC\+\_\+\+DECL void \mbox{\hyperlink{btree_8c_adf0888d2b80509a6c7935f4646f04229}{dsc\+\_\+get\+\_\+btree\+\_\+node\+\_\+list}} (const restrict p\+BTree\+Node\+\_\+t root, p\+BTree\+Node\+\_\+t \texorpdfstring{$\ast$}{*}restrict list, const size\+\_\+t list\+\_\+size, const DFSMethod method)
+\begin{DoxyCompactList}\small\item\em Flattens the tree into a list ordered according to method. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{btree_8c_aef726673a09d801a40682410390442cf}\label{btree_8c_aef726673a09d801a40682410390442cf} 
+static unsigned {\bfseries idx} = 0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Provides functions for creating, deleting, and manipulating binary trees. 
+
+\begin{DoxySince}{Since}
+24-\/01-\/2024 
+\end{DoxySince}
+\begin{DoxyAuthor}{Author}
+Neil Kingdom 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0 
+\end{DoxyVersion}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{btree_8c_a361c859eb3ced2bc319880f3600d4c59}\label{btree_8c_a361c859eb3ced2bc319880f3600d4c59} 
+\index{btree.c@{btree.c}!dsc\_add\_btree\_node@{dsc\_add\_btree\_node}}
+\index{dsc\_add\_btree\_node@{dsc\_add\_btree\_node}!btree.c@{btree.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_add\_btree\_node()}{dsc\_add\_btree\_node()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL DSC\+\_\+\+Error dsc\+\_\+add\+\_\+btree\+\_\+node (\begin{DoxyParamCaption}\item[{restrict p\+BTree\+Node\+\_\+t}]{root,  }\item[{const void \texorpdfstring{$\ast$}{*}}]{data,  }\item[{const size\+\_\+t}]{len,  }\item[{insert\+\_\+func}]{inf }\end{DoxyParamCaption})}
+
+
+
+Add a new node to an existing tree. 
+
+\begin{DoxySince}{Since}
+24-\/02-\/2024 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em root} & The root node of the tree \\
+\hline
+\mbox{\texttt{ in}}  & {\em data} & A pointer to the initial data used in the new node \\
+\hline
+\mbox{\texttt{ in}}  & {\em len} & The length of the data (usually 1 unless using a string) \\
+\hline
+\mbox{\texttt{ in}}  & {\em inf} & Pointer to the insert function \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A DSC\+\_\+\+Error type corresponding to the exit status 
+\end{DoxyReturn}
+\Hypertarget{btree_8c_a92719f498e5b08a35ab0d437c823a9a5}\label{btree_8c_a92719f498e5b08a35ab0d437c823a9a5} 
+\index{btree.c@{btree.c}!dsc\_create\_btree@{dsc\_create\_btree}}
+\index{dsc\_create\_btree@{dsc\_create\_btree}!btree.c@{btree.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_create\_btree()}{dsc\_create\_btree()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL p\+BTree\+Node\+\_\+t dsc\+\_\+create\+\_\+btree (\begin{DoxyParamCaption}\item[{const size\+\_\+t}]{len,  }\item[{const size\+\_\+t}]{tsize,  }\item[{const void \texorpdfstring{$\ast$}{*}restrict}]{data }\end{DoxyParamCaption})}
+
+
+
+Create the root node for a binary tree. 
+
+\begin{DoxySince}{Since}
+24-\/02-\/2024 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em len} & The length of the data (usually 1 unless using a string) \\
+\hline
+\mbox{\texttt{ in}}  & {\em tsize} & The size of the data\textquotesingle{}s type in bytes \\
+\hline
+\mbox{\texttt{ in}}  & {\em data} & A pointer to the initial data used in the root node \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The newly allocated root node for the tree 
+\end{DoxyReturn}
+\Hypertarget{btree_8c_acb9804996a5ffc476308fc9410a7e665}\label{btree_8c_acb9804996a5ffc476308fc9410a7e665} 
+\index{btree.c@{btree.c}!dsc\_destroy\_btree@{dsc\_destroy\_btree}}
+\index{dsc\_destroy\_btree@{dsc\_destroy\_btree}!btree.c@{btree.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_destroy\_btree()}{dsc\_destroy\_btree()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL DSC\+\_\+\+Error dsc\+\_\+destroy\+\_\+btree (\begin{DoxyParamCaption}\item[{restrict p\+BTree\+Node\+\_\+t}]{root }\end{DoxyParamCaption})}
+
+
+
+Destroy a binary tree. 
+
+\begin{DoxyWarning}{Warning}
+You {\itshape must} provide the actual root node. To remove a child node use dsc\+\_\+remove\+\_\+btree\+\_\+node. 
+\end{DoxyWarning}
+\begin{DoxySince}{Since}
+24-\/02-\/2024 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em root} & The root node of the tree \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A DSC\+\_\+\+Error type corresponding to the exit status 
+\end{DoxyReturn}
+\Hypertarget{btree_8c_a3ae1c9e06d9a508d029d51b1e93e2b6f}\label{btree_8c_a3ae1c9e06d9a508d029d51b1e93e2b6f} 
+\index{btree.c@{btree.c}!dsc\_get\_btree\_node@{dsc\_get\_btree\_node}}
+\index{dsc\_get\_btree\_node@{dsc\_get\_btree\_node}!btree.c@{btree.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_get\_btree\_node()}{dsc\_get\_btree\_node()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL p\+BTree\+Node\+\_\+t dsc\+\_\+get\+\_\+btree\+\_\+node (\begin{DoxyParamCaption}\item[{const restrict p\+BTree\+Node\+\_\+t}]{root,  }\item[{sort\+\_\+func}]{sf }\end{DoxyParamCaption})}
+
+
+
+Returns a node from the tree matching the criteria of sf if it exists. 
+
+\begin{DoxySince}{Since}
+24-\/02-\/2024 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em root} & The root node of the tree \\
+\hline
+\mbox{\texttt{ in}}  & {\em sf} & Pointer to the sort function \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The node if it was found; otherwise returns NULL 
+\end{DoxyReturn}
+\Hypertarget{btree_8c_adf0888d2b80509a6c7935f4646f04229}\label{btree_8c_adf0888d2b80509a6c7935f4646f04229} 
+\index{btree.c@{btree.c}!dsc\_get\_btree\_node\_list@{dsc\_get\_btree\_node\_list}}
+\index{dsc\_get\_btree\_node\_list@{dsc\_get\_btree\_node\_list}!btree.c@{btree.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_get\_btree\_node\_list()}{dsc\_get\_btree\_node\_list()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL void dsc\+\_\+get\+\_\+btree\+\_\+node\+\_\+list (\begin{DoxyParamCaption}\item[{const restrict p\+BTree\+Node\+\_\+t}]{root,  }\item[{p\+BTree\+Node\+\_\+t \texorpdfstring{$\ast$}{*}restrict}]{list,  }\item[{const size\+\_\+t}]{list\+\_\+size,  }\item[{const DFSMethod}]{method }\end{DoxyParamCaption})}
+
+
+
+Flattens the tree into a list ordered according to method. 
+
+\begin{DoxySince}{Since}
+24-\/02-\/2024 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em root} & The root node of the tree \\
+\hline
+ & {\em \mbox{[}in/out\mbox{]}} & list A pointer to an allocated memory region of sufficient size for each node in the tree \\
+\hline
+\mbox{\texttt{ in}}  & {\em The} & size of the list in bytes \\
+\hline
+\mbox{\texttt{ in}}  & {\em method} & The depth-\/first-\/search method by which the list will be ordered \\
+\hline
+\end{DoxyParams}
+\Hypertarget{btree_8c_a5836c42a42c4d16d7bc2f30eaa1d1bfc}\label{btree_8c_a5836c42a42c4d16d7bc2f30eaa1d1bfc} 
+\index{btree.c@{btree.c}!dsc\_get\_btree\_node\_parent@{dsc\_get\_btree\_node\_parent}}
+\index{dsc\_get\_btree\_node\_parent@{dsc\_get\_btree\_node\_parent}!btree.c@{btree.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_get\_btree\_node\_parent()}{dsc\_get\_btree\_node\_parent()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL p\+BTree\+Node\+\_\+t dsc\+\_\+get\+\_\+btree\+\_\+node\+\_\+parent (\begin{DoxyParamCaption}\item[{const restrict p\+BTree\+Node\+\_\+t}]{root,  }\item[{sort\+\_\+func}]{sf }\end{DoxyParamCaption})}
+
+
+
+Returns a node\textquotesingle{}s parent from the tree matching the criteria of sf if it exists. 
+
+\begin{DoxySince}{Since}
+24-\/02-\/2024 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em root} & The root node of the tree \\
+\hline
+\mbox{\texttt{ in}}  & {\em sf} & Pointer to the sort function \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The node\textquotesingle{}s parent if it was found; otherwise returns NULL 
+\end{DoxyReturn}
+\Hypertarget{btree_8c_a1d0488c92867694fb3383a99ade5e18b}\label{btree_8c_a1d0488c92867694fb3383a99ade5e18b} 
+\index{btree.c@{btree.c}!dsc\_remove\_btree\_node@{dsc\_remove\_btree\_node}}
+\index{dsc\_remove\_btree\_node@{dsc\_remove\_btree\_node}!btree.c@{btree.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_remove\_btree\_node()}{dsc\_remove\_btree\_node()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL DSC\+\_\+\+Error dsc\+\_\+remove\+\_\+btree\+\_\+node (\begin{DoxyParamCaption}\item[{restrict p\+BTree\+Node\+\_\+t}]{root,  }\item[{sort\+\_\+func}]{sf }\end{DoxyParamCaption})}
+
+
+
+Remove a node from an existing tree, alongside its descendants. 
+
+\begin{DoxySince}{Since}
+24-\/02-\/2024 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em root} & The root node of the tree \\
+\hline
+\mbox{\texttt{ in}}  & {\em sf} & Pointer to the sort function \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A DSC\+\_\+\+Error type corresponding to the exit status 
+\end{DoxyReturn}

@@ -1,0 +1,149 @@
+\doxysection{/home/neil/devel/projects/libdsc/src/buffer.c File Reference}
+\hypertarget{buffer_8c}{}\label{buffer_8c}\index{/home/neil/devel/projects/libdsc/src/buffer.c@{/home/neil/devel/projects/libdsc/src/buffer.c}}
+
+
+This source file provides basic functionality for creating a generic buffer.  
+
+
+{\ttfamily \#include "{}../include/buffer.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+DSC\+\_\+\+DECL buffer\+\_\+t \mbox{\hyperlink{buffer_8c_a12f90e40ad3f165b7004e8a8cdf6be73}{dsc\+\_\+create\+\_\+buffer}} (const size\+\_\+t len, const size\+\_\+t tsize)
+\begin{DoxyCompactList}\small\item\em Creates a new general purpose buffer. \end{DoxyCompactList}\item 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error \mbox{\hyperlink{buffer_8c_a3b28459839950d1da0d30841568403fd}{dsc\+\_\+destroy\+\_\+buffer}} (restrict p\+Buffer\+\_\+t buf)
+\begin{DoxyCompactList}\small\item\em Free an alloated buffer. \end{DoxyCompactList}\item 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error \mbox{\hyperlink{buffer_8c_a7c9fa36e95e9472adea1f4bca421d79f}{dsc\+\_\+resize\+\_\+buffer}} (restrict p\+Buffer\+\_\+t buf, const size\+\_\+t newlen)
+\begin{DoxyCompactList}\small\item\em Resize an existing buffer. \end{DoxyCompactList}\item 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error \mbox{\hyperlink{buffer_8c_a9ebb3557ff42fff870a1d1f61476a2ef}{dsc\+\_\+clear\+\_\+buffer}} (buffer\+\_\+t buf, const uint8\+\_\+t byte)
+\begin{DoxyCompactList}\small\item\em Clears the buffer by filling it with "{}byte"{}. \end{DoxyCompactList}\item 
+DSC\+\_\+\+DECL size\+\_\+t \mbox{\hyperlink{buffer_8c_a46440589ae3a708f4284ddfedd95a483}{dsc\+\_\+get\+\_\+buffer\+\_\+capacity}} (buffer\+\_\+t buf)
+\begin{DoxyCompactList}\small\item\em Returns the number of elements that a buffer can fit. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This source file provides basic functionality for creating a generic buffer. 
+
+\begin{DoxyAuthor}{Author}
+Neil Kingdom 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0 
+\end{DoxyVersion}
+\begin{DoxySince}{Since}
+04-\/06-\/2022 
+\end{DoxySince}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{buffer_8c_a9ebb3557ff42fff870a1d1f61476a2ef}\label{buffer_8c_a9ebb3557ff42fff870a1d1f61476a2ef} 
+\index{buffer.c@{buffer.c}!dsc\_clear\_buffer@{dsc\_clear\_buffer}}
+\index{dsc\_clear\_buffer@{dsc\_clear\_buffer}!buffer.c@{buffer.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_clear\_buffer()}{dsc\_clear\_buffer()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL DSC\+\_\+\+Error dsc\+\_\+clear\+\_\+buffer (\begin{DoxyParamCaption}\item[{buffer\+\_\+t}]{buf,  }\item[{const uint8\+\_\+t}]{byte }\end{DoxyParamCaption})}
+
+
+
+Clears the buffer by filling it with "{}byte"{}. 
+
+\begin{DoxySince}{Since}
+04/06/2022 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em byte} & The byte to fill the buffer with \\
+\hline
+ & {\em \mbox{[}in/out\mbox{]}} & bp A pointer to a buffer\+\_\+t \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A status code representing the state of operations upon completion 
+\end{DoxyReturn}
+\Hypertarget{buffer_8c_a12f90e40ad3f165b7004e8a8cdf6be73}\label{buffer_8c_a12f90e40ad3f165b7004e8a8cdf6be73} 
+\index{buffer.c@{buffer.c}!dsc\_create\_buffer@{dsc\_create\_buffer}}
+\index{dsc\_create\_buffer@{dsc\_create\_buffer}!buffer.c@{buffer.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_create\_buffer()}{dsc\_create\_buffer()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL buffer\+\_\+t dsc\+\_\+create\+\_\+buffer (\begin{DoxyParamCaption}\item[{const size\+\_\+t}]{len,  }\item[{const size\+\_\+t}]{tsize }\end{DoxyParamCaption})}
+
+
+
+Creates a new general purpose buffer. 
+
+\begin{DoxySince}{Since}
+04/06/2022 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em len} & The length of the buffer \\
+\hline
+\mbox{\texttt{ in}}  & {\em tsize} & The size of the buffer datatype in bytes \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to the new buffer object if successful, or NULL otherwise 
+\end{DoxyReturn}
+\Hypertarget{buffer_8c_a3b28459839950d1da0d30841568403fd}\label{buffer_8c_a3b28459839950d1da0d30841568403fd} 
+\index{buffer.c@{buffer.c}!dsc\_destroy\_buffer@{dsc\_destroy\_buffer}}
+\index{dsc\_destroy\_buffer@{dsc\_destroy\_buffer}!buffer.c@{buffer.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_destroy\_buffer()}{dsc\_destroy\_buffer()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL DSC\+\_\+\+Error dsc\+\_\+destroy\+\_\+buffer (\begin{DoxyParamCaption}\item[{restrict p\+Buffer\+\_\+t}]{buf }\end{DoxyParamCaption})}
+
+
+
+Free an alloated buffer. 
+
+\begin{DoxySince}{Since}
+04/06/2022 
+\end{DoxySince}
+
+\begin{DoxyParams}{Parameters}
+{\em \mbox{[}in/out\mbox{]}} & bp A pointer to a buffer\+\_\+t \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A status code representing the state of operations upon completion 
+\end{DoxyReturn}
+\Hypertarget{buffer_8c_a46440589ae3a708f4284ddfedd95a483}\label{buffer_8c_a46440589ae3a708f4284ddfedd95a483} 
+\index{buffer.c@{buffer.c}!dsc\_get\_buffer\_capacity@{dsc\_get\_buffer\_capacity}}
+\index{dsc\_get\_buffer\_capacity@{dsc\_get\_buffer\_capacity}!buffer.c@{buffer.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_get\_buffer\_capacity()}{dsc\_get\_buffer\_capacity()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL size\+\_\+t dsc\+\_\+get\+\_\+buffer\+\_\+capacity (\begin{DoxyParamCaption}\item[{buffer\+\_\+t}]{buf }\end{DoxyParamCaption})}
+
+
+
+Returns the number of elements that a buffer can fit. 
+
+\begin{DoxySince}{Since}
+04/06/2022 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em buf} & Buffer struct \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The length of the buffer or DSC\+\_\+\+EFAULT upon failure 
+\end{DoxyReturn}
+\Hypertarget{buffer_8c_a7c9fa36e95e9472adea1f4bca421d79f}\label{buffer_8c_a7c9fa36e95e9472adea1f4bca421d79f} 
+\index{buffer.c@{buffer.c}!dsc\_resize\_buffer@{dsc\_resize\_buffer}}
+\index{dsc\_resize\_buffer@{dsc\_resize\_buffer}!buffer.c@{buffer.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_resize\_buffer()}{dsc\_resize\_buffer()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL DSC\+\_\+\+Error dsc\+\_\+resize\+\_\+buffer (\begin{DoxyParamCaption}\item[{restrict p\+Buffer\+\_\+t}]{buf,  }\item[{const size\+\_\+t}]{newlen }\end{DoxyParamCaption})}
+
+
+
+Resize an existing buffer. 
+
+\begin{DoxySince}{Since}
+04/06/2022 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em newlen} & The new length of the buffer \\
+\hline
+ & {\em \mbox{[}in/out\mbox{]}} & bp A pointer to a buffer\+\_\+t \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A status code representing the state of operations upon completion 
+\end{DoxyReturn}

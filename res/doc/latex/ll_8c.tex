@@ -1,0 +1,79 @@
+\doxysection{/home/neil/devel/projects/libdsc/src/ll.c File Reference}
+\hypertarget{ll_8c}{}\label{ll_8c}\index{/home/neil/devel/projects/libdsc/src/ll.c@{/home/neil/devel/projects/libdsc/src/ll.c}}
+
+
+This file provides functionality for building a standard linked list.  
+
+
+{\ttfamily \#include $<$assert.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$sys/mman.\+h$>$}\newline
+{\ttfamily \#include "{}../include/buffer.\+h"{}}\newline
+{\ttfamily \#include "{}../include/ll.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static int \mbox{\hyperlink{ll_8c_a148aa4c955bcf6f638b74a7ea1f0521f}{\+\_\+dsc\+\_\+del\+\_\+ll\+\_\+node}} (p\+LLNode\+\_\+t np)
+\begin{DoxyCompactList}\small\item\em Free an allocated p\+LLNode\+\_\+t struct. \end{DoxyCompactList}\item 
+\Hypertarget{ll_8c_ad491b966e25d668095baccfcb50340b4}\label{ll_8c_ad491b966e25d668095baccfcb50340b4} 
+DSC\+\_\+\+DECL p\+LLNode\+\_\+t {\bfseries dsc\+\_\+create\+\_\+ll} (const size\+\_\+t tsize, void \texorpdfstring{$\ast$}{*}data)
+\item 
+\Hypertarget{ll_8c_ad20d78a90a1358a82b725284aaf5a0e5}\label{ll_8c_ad20d78a90a1358a82b725284aaf5a0e5} 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error {\bfseries dsc\+\_\+add\+\_\+ll\+\_\+node} (p\+LLNode\+\_\+t head, void \texorpdfstring{$\ast$}{*}data)
+\item 
+\Hypertarget{ll_8c_a66aa9021423aa1bd46f205016086326b}\label{ll_8c_a66aa9021423aa1bd46f205016086326b} 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error {\bfseries dsc\+\_\+del\+\_\+ll\+\_\+node} (p\+LLNode\+\_\+t head, const unsigned index)
+\item 
+\Hypertarget{ll_8c_a2361c5f7994db2b7305e387fe7826db1}\label{ll_8c_a2361c5f7994db2b7305e387fe7826db1} 
+DSC\+\_\+\+DECL ssize\+\_\+t {\bfseries dsc\+\_\+get\+\_\+ll\+\_\+len} (p\+LLNode\+\_\+t head)
+\item 
+\Hypertarget{ll_8c_aedc5e555d3294e8c188a1008d36ce189}\label{ll_8c_aedc5e555d3294e8c188a1008d36ce189} 
+DSC\+\_\+\+DECL p\+LLNode\+\_\+t {\bfseries dsc\+\_\+get\+\_\+ll\+\_\+node} (p\+LLNode\+\_\+t head, const unsigned index)
+\item 
+\Hypertarget{ll_8c_afafda7401ea7b2b84e5ea826ba4335af}\label{ll_8c_afafda7401ea7b2b84e5ea826ba4335af} 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error {\bfseries dsc\+\_\+clear\+\_\+ll} (p\+LLNode\+\_\+t head, const uint8\+\_\+t byte)
+\item 
+\Hypertarget{ll_8c_aa9ac19d7f52e4c711a8a696d89166a36}\label{ll_8c_aa9ac19d7f52e4c711a8a696d89166a36} 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error {\bfseries dsc\+\_\+destroy\+\_\+ll} (p\+LLNode\+\_\+t head)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This file provides functionality for building a standard linked list. 
+
+Definitions for doubly linked lists are provided in dll.\+c.
+
+\begin{DoxyAuthor}{Author}
+Neil Kingdom 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0 
+\end{DoxyVersion}
+\begin{DoxySince}{Since}
+06/22/2023 
+\end{DoxySince}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{ll_8c_a148aa4c955bcf6f638b74a7ea1f0521f}\label{ll_8c_a148aa4c955bcf6f638b74a7ea1f0521f} 
+\index{ll.c@{ll.c}!\_dsc\_del\_ll\_node@{\_dsc\_del\_ll\_node}}
+\index{\_dsc\_del\_ll\_node@{\_dsc\_del\_ll\_node}!ll.c@{ll.c}}
+\doxysubsubsection{\texorpdfstring{\_dsc\_del\_ll\_node()}{\_dsc\_del\_ll\_node()}}
+{\footnotesize\ttfamily static int \+\_\+dsc\+\_\+del\+\_\+ll\+\_\+node (\begin{DoxyParamCaption}\item[{p\+LLNode\+\_\+t}]{np }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Free an allocated p\+LLNode\+\_\+t struct. 
+
+\begin{DoxySince}{Since}
+06/22/2023 
+\end{DoxySince}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em np} & A pointer to a LLNode\+\_\+t \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A status code representing the state of operations upon completion 
+\end{DoxyReturn}

@@ -1,0 +1,68 @@
+\doxysection{/home/neil/devel/projects/libdsc/src/stack.c File Reference}
+\hypertarget{stack_8c}{}\label{stack_8c}\index{/home/neil/devel/projects/libdsc/src/stack.c@{/home/neil/devel/projects/libdsc/src/stack.c}}
+
+
+This source file provides basic functionality for creating a generic buffer.  
+
+
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$assert.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$sys/mman.\+h$>$}\newline
+{\ttfamily \#include "{}../include/stack.\+h"{}}\newline
+{\ttfamily \#include "{}../include/buffer.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{stack_8c_a9e85066a72f93c44ecb58c256e43f633}\label{stack_8c_a9e85066a72f93c44ecb58c256e43f633} 
+static void {\bfseries \+\_\+dsc\+\_\+pop\+\_\+stack} (restrict p\+Stack\+\_\+t stack)
+\item 
+DSC\+\_\+\+DECL stack\+\_\+t \mbox{\hyperlink{stack_8c_af113ee4c26f3285f5408a625d2c04409}{dsc\+\_\+create\+\_\+stack}} (const size\+\_\+t tsize)
+\begin{DoxyCompactList}\small\item\em Creates a new general purpose stack. \end{DoxyCompactList}\item 
+\Hypertarget{stack_8c_a460c4749d31245dc576ecdbb9d3b0226}\label{stack_8c_a460c4749d31245dc576ecdbb9d3b0226} 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error {\bfseries dsc\+\_\+destroy\+\_\+stack} (p\+Stack\+\_\+t stack)
+\item 
+\Hypertarget{stack_8c_ae7c29386f033256c8474397c468042f9}\label{stack_8c_ae7c29386f033256c8474397c468042f9} 
+DSC\+\_\+\+DECL DSC\+\_\+\+Error {\bfseries dsc\+\_\+push\+\_\+stack} (restrict p\+Stack\+\_\+t stack, void \texorpdfstring{$\ast$}{*}restrict data)
+\item 
+\Hypertarget{stack_8c_aea2d5172e781b5592badbc6e8093a89b}\label{stack_8c_aea2d5172e781b5592badbc6e8093a89b} 
+DSC\+\_\+\+DECL void \texorpdfstring{$\ast$}{*} {\bfseries dsc\+\_\+pop\+\_\+stack} (p\+Stack\+\_\+t stack)
+\item 
+\Hypertarget{stack_8c_a6274af16360c677004298d3e51b03d79}\label{stack_8c_a6274af16360c677004298d3e51b03d79} 
+DSC\+\_\+\+DECL void \texorpdfstring{$\ast$}{*} {\bfseries dsc\+\_\+peek\+\_\+stack} (p\+Stack\+\_\+t stack)
+\item 
+\Hypertarget{stack_8c_a4ff1b15063b447b751bed118c6e7fbfa}\label{stack_8c_a4ff1b15063b447b751bed118c6e7fbfa} 
+DSC\+\_\+\+DECL ssize\+\_\+t {\bfseries dsc\+\_\+get\+\_\+stack\+\_\+size} (p\+Stack\+\_\+t stack)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This source file provides basic functionality for creating a generic buffer. 
+
+It is used by all other data structures, and is thus the cornerstone of the library.
+
+\begin{DoxyAuthor}{Author}
+Neil Kingdom 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0 
+\end{DoxyVersion}
+\begin{DoxySince}{Since}
+04/06/2022 
+\end{DoxySince}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{stack_8c_af113ee4c26f3285f5408a625d2c04409}\label{stack_8c_af113ee4c26f3285f5408a625d2c04409} 
+\index{stack.c@{stack.c}!dsc\_create\_stack@{dsc\_create\_stack}}
+\index{dsc\_create\_stack@{dsc\_create\_stack}!stack.c@{stack.c}}
+\doxysubsubsection{\texorpdfstring{dsc\_create\_stack()}{dsc\_create\_stack()}}
+{\footnotesize\ttfamily DSC\+\_\+\+DECL stack\+\_\+t dsc\+\_\+create\+\_\+stack (\begin{DoxyParamCaption}\item[{const size\+\_\+t}]{tsize }\end{DoxyParamCaption})}
+
+
+
+Creates a new general purpose stack. 
+
+\begin{DoxySince}{Since}
+
+\end{DoxySince}

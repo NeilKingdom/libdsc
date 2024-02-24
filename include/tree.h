@@ -1,8 +1,12 @@
 #ifndef TREE_H
 #define TREE_H
 
-#include "common.h"
+#include "dsc_common.h"
 #include "buffer.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 typedef struct TreeNode {
     buffer_t          data; 
@@ -24,5 +28,9 @@ DSC_DECL pTreeNode_t    dsc_get_tree_node(pTreeNode_t node, search_func sf);
 DSC_DECL pTreeNode_t    dsc_get_prev_tree_node(void);
 DSC_DECL pTreeNode_t    dsc_get_parent_tree_node(pTreeNode_t child);
 DSC_DECL pTreeNode_t   *dsc_get_tree_node_siblings(pTreeNode_t node);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* TREE_H */

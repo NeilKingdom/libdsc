@@ -1,9 +1,11 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#include <stdint.h>
+#include "dsc_common.h"
 
-#include "common.h"
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 typedef struct buffer {
    void  *addr;  /* Address of the memory region */
@@ -66,5 +68,9 @@ DSC_DECL DSC_Error   dsc_clear_buffer(buffer_t buf, const uint8_t byte);
 DSC_DECL size_t      dsc_get_buffer_capacity(buffer_t buf);
 DSC_DECL DSC_Error   dsc_destroy_buffer(pBuffer_t buf);
 DSC_DECL DSC_Error   dsc_resize_buffer(pBuffer_t buf, const size_t newlen);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* BUFFER_H */
