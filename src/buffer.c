@@ -47,7 +47,7 @@ DSC_DECL Buffer_t dsc_create_buffer(const size_t nelem, const size_t tsize) {
  * @param[in/out] buf A pointer to the buffer being destroyed
  * @returns A DscError_t object containing the exit status code
  */
-DSC_DECL DscError_t dsc_destroy_buffer(pBuffer_t restrict buf) {
+DSC_DECL DscError_t dsc_destroy_buffer(Buffer_t * restrict buf) {
     int status;
 
     if (!buf->addr) {
@@ -75,7 +75,7 @@ DSC_DECL DscError_t dsc_destroy_buffer(pBuffer_t restrict buf) {
  * @param[in] nelem The new number of elements that the buffer shall contain
  * @returns A DscError_t object containing the exit status code
  */
-DSC_DECL DscError_t dsc_resize_buffer(pBuffer_t restrict buf, const size_t nelem) {
+DSC_DECL DscError_t dsc_resize_buffer(Buffer_t * restrict buf, const size_t nelem) {
     if (nelem <= 0) {
         DSC_ERROR("The new buffer length is invalid");
         return DSC_EINVAL;
@@ -97,19 +97,19 @@ DSC_DECL DscError_t dsc_resize_buffer(pBuffer_t restrict buf, const size_t nelem
 }
 
 /**
- * @brief Writes "byte" to each byte of the buffer.
+ * @brief Writes the value contained in "byte" to each byte of the buffer.
  * @since 04/06/2022
- * @param[in/out] buf A pointer to the buffer being cleared
+ * @param[in/out] buf A pointer to the buffer being filled
  * @param[in] byte The byte to fill the buffer with
  * @returns A DscError_t object containing the exit status code
  */
-DSC_DECL DscError_t dsc_clear_buffer(Buffer_t buf, const uint8_t byte) {
-    if (!buf.addr) {
+DSC_DECL DscError_t dsc_fill_buffer(Buffer_t * restrict buf, const uint8_t byte) {
+    if (!buf->addr) {
         DSC_ERROR("The buffer points to an invalid address");
         return DSC_EFAULT;
     }
 
-    memset(buf.addr, (int)byte, buf.bsize);
+    memset(buf->addr, (int)byte, buf->bsize);
     return DSC_EOK;
 }
 
@@ -117,7 +117,7 @@ DSC_DECL DscError_t dsc_clear_buffer(Buffer_t buf, const uint8_t byte) {
  * @brief Returns the number of elements that the buffer can fit.
  * @since 04/06/2022
  * @param[in] buf The buffer whos capacity is being checked
- * @returns The capacity of the buffer or DSC_EFAULT upon failure
+ * @returns The capacity of the buffer or DSC_EFAIL upon failure
  */
 DSC_DECL ssize_t dsc_get_buffer_capacity(const Buffer_t buf) {
     if (!buf.addr) {
