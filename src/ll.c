@@ -1,12 +1,9 @@
 /**
- * This file provides functionality for building a
- * standard linked list. Definitions for doubly
- * linked lists are provided in dll.c.
- *
  * @file
  * @author Neil Kingdom
  * @version 1.0
  * @since 06/22/2023
+ * @brief
 */
 
 #include "ll.h"
@@ -24,21 +21,21 @@
  * @param [in] np A pointer to a LLNode_t
  * @returns A status code representing the state of operations upon completion
  */
-static DscError_t _dsc_del_ll_node(pLLNode_t np) {
+static DscError_t _dsc_del_ll_node(pLLNode_t node) {
    int status;
 
-   if (!np) {
+   if (!node) {
       DSC_ERROR("The node points to an invalid address");
       return DSC_EFAULT;
    } else {
-      assert((long)np % sysconf(_SC_PAGE_SIZE) == 0);
-      status = munmap(np, sizeof(LLNode_t));
+      assert((long)node % sysconf(_SC_PAGE_SIZE) == 0);
+      status = munmap(node, sizeof(LLNode_t));
       if (status != 0) {
          DSC_ERROR("Failed to unmap pLLNode_t struct");
          return DSC_EFAIL;
       }
 
-      np = NULL;
+      node = NULL;
    }
 
    return DSC_EOK;
