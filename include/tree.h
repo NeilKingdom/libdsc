@@ -9,7 +9,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct TreeNode {
-    buffer_t          data; 
+    Buffer_t          data;
     struct TreeNode **children;
 } *pTreeNode_t, TreeNode_t;
 
@@ -23,7 +23,7 @@ typedef SearchCriteria (*search_func)(pTreeNode_t node);
 
 static pTreeNode_t prev_node;
 
-DSC_DECL DSC_Error      dsc_add_tree_node(pTreeNode_t parent, pTreeNode_t child);
+DSC_DECL DscError_t     dsc_add_tree_node(pTreeNode_t parent, pTreeNode_t child);
 DSC_DECL pTreeNode_t    dsc_get_tree_node(pTreeNode_t node, search_func sf);
 DSC_DECL pTreeNode_t    dsc_get_prev_tree_node(void);
 DSC_DECL pTreeNode_t    dsc_get_parent_tree_node(pTreeNode_t child);

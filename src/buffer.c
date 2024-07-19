@@ -3,10 +3,10 @@
  * @author Neil Kingdom
  * @version 1.0
  * @since 04-06-2022
- * @brief This source file provides basic functionality for creating a generic buffer
+ * @brief This source file provides basic functionality for creating a generic buffer.
 */
 
-#include "../include/buffer.h"
+#include "buffer.h"
 
 /*
  * ===============================
@@ -15,27 +15,25 @@
  */
 
 /**
- * Creates a new general purpose buffer.
- *
+ * @brief Creates a new general purpose buffer.
  * @since 04/06/2022
- * @param[in] len The length of the buffer
- * @param[in] tsize The size of the buffer datatype in bytes
- * @returns A pointer to the new buffer object if successful, or NULL otherwise
+ * @param[in] nelem The initial number of elements that the buffer shall contain
+ * @param[in] tsize The size (in bytes) of the datatype used for the buffer
+ * @returns A new Buffer_t object
  */
-DSC_DECL buffer_t dsc_create_buffer(const size_t len, const size_t tsize) {
-    void *addr = NULL;
-    size_t bsize = len * tsize;
-    buffer_t buf = { addr, tsize, bsize };
+DSC_DECL Buffer_t dsc_create_buffer(const size_t nelem, const size_t tsize) {
+    size_t bsize = nelem * tsize;
+    Buffer_t buf = { NULL, tsize, bsize };
 
     /* Input validation (size_t specifies no upper bound, so we can't check that) */
-    if (len <= 0 || tsize <= 0) {
+    if (nelem <= 0 || tsize <= 0) {
         DSC_ERROR("Invalid parameter");
         return buf;
     }
 
     /* Allocate space for the buffer */
     buf.addr = mmap(NULL, bsize, (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
-    if (MAP_FAILED == buf.addr) {
+    if (buf.addr == MAP_FAILED) {
         DSC_ERROR("Failed to allocate memory for buffer");
         buf.addr = NULL;
     }
@@ -44,13 +42,12 @@ DSC_DECL buffer_t dsc_create_buffer(const size_t len, const size_t tsize) {
 }
 
 /**
- * Free an alloated buffer.
- *
+ * @brief Free an allocated buffer.
  * @since 04/06/2022
- * @param[in/out] bp A pointer to a buffer_t
- * @returns A status code representing the state of operations upon completion
+ * @param[in/out] buf A pointer to the buffer being destroyed
+ * @returns A DscError_t object containing the exit status code
  */
-DSC_DECL DSC_Error dsc_destroy_buffer(restrict pBuffer_t buf) {
+DSC_DECL DscError_t dsc_destroy_buffer(pBuffer_t restrict buf) {
     int status;
 
     if (!buf->addr) {
@@ -64,7 +61,7 @@ DSC_DECL DSC_Error dsc_destroy_buffer(restrict pBuffer_t buf) {
 
         if (status != 0) {
             DSC_ERROR("Failed to unmap buffer");
-            return DSC_EFREE;
+            return DSC_EFAIL;
         }
     }
 
@@ -72,43 +69,41 @@ DSC_DECL DSC_Error dsc_destroy_buffer(restrict pBuffer_t buf) {
 }
 
 /**
- * Resize an existing buffer.
- *
+ * @brief Resize an existing buffer.
  * @since 04/06/2022
- * @param[in] newlen The new length of the buffer
- * @param[in/out] bp A pointer to a buffer_t
- * @returns A status code representing the state of operations upon completion
+ * @param[in/out] buf A pointer to the buffer being resized
+ * @param[in] nelem The new number of elements that the buffer shall contain
+ * @returns A DscError_t object containing the exit status code
  */
-DSC_DECL DSC_Error dsc_resize_buffer(restrict pBuffer_t buf, const size_t newlen) {
-    if (newlen <= 0) {
+DSC_DECL DscError_t dsc_resize_buffer(pBuffer_t restrict buf, const size_t nelem) {
+    if (nelem <= 0) {
         DSC_ERROR("The new buffer length is invalid");
         return DSC_EINVAL;
     } else if (!buf->addr) {
         DSC_ERROR("The buffer points to an invalid address");
         return DSC_EFAULT;
     } else {
-        assert((long)(buf->addr) % sysconf(_SC_PAGE_SIZE) == 0);
-        buf->addr = mremap(buf->addr, buf->bsize, (newlen * buf->tsize), 0);
-        if (MAP_FAILED == buf->addr) {
+        buf->addr = mremap(buf->addr, buf->bsize, (nelem * buf->tsize), 0);
+        if (buf->addr == MAP_FAILED) {
             DSC_ERROR("Failed to remap buffer");
             buf->addr = NULL;
-            return DSC_ERROR;
+            buf->bsize = 0;
+            return DSC_EFAIL;
         }
     }
 
-    buf->bsize = newlen * buf->tsize;
+    buf->bsize = nelem * buf->tsize;
     return DSC_EOK;
 }
 
 /**
- * Clears the buffer by filling it with "byte".
- *
+ * @brief Writes "byte" to each byte of the buffer.
  * @since 04/06/2022
+ * @param[in/out] buf A pointer to the buffer being cleared
  * @param[in] byte The byte to fill the buffer with
- * @param[in/out] bp A pointer to a buffer_t
- * @returns A status code representing the state of operations upon completion
+ * @returns A DscError_t object containing the exit status code
  */
-DSC_DECL DSC_Error dsc_clear_buffer(buffer_t buf, const uint8_t byte) {
+DSC_DECL DscError_t dsc_clear_buffer(Buffer_t buf, const uint8_t byte) {
     if (!buf.addr) {
         DSC_ERROR("The buffer points to an invalid address");
         return DSC_EFAULT;
@@ -119,17 +114,16 @@ DSC_DECL DSC_Error dsc_clear_buffer(buffer_t buf, const uint8_t byte) {
 }
 
 /**
- * Returns the number of elements that a buffer can fit.
- *
+ * @brief Returns the number of elements that the buffer can fit.
  * @since 04/06/2022
- * @param[in] buf Buffer struct
- * @returns The length of the buffer or DSC_EFAULT upon failure
+ * @param[in] buf The buffer whos capacity is being checked
+ * @returns The capacity of the buffer or DSC_EFAULT upon failure
  */
-DSC_DECL size_t dsc_get_buffer_capacity(buffer_t buf) {
+DSC_DECL ssize_t dsc_get_buffer_capacity(const Buffer_t buf) {
     if (!buf.addr) {
         DSC_ERROR("The buffer points to an invalid address");
-        return -1;
-    } 
+        return DSC_EFAIL;
+    }
 
     return (buf.bsize / buf.tsize);
 }

@@ -3,10 +3,10 @@
  * @since 24-01-2024
  * @author Neil Kingdom
  * @version 1.0
- * @brief Provides functions for creating, deleting, and manipulating binary trees
+ * @brief Provides functions for creating, deleting, and manipulating binary trees.
  */
 
-#include "../include/btree.h"
+#include "btree.h"
 
 /*
  * ===============================
@@ -14,10 +14,9 @@
  * ===============================
  */
 
-static DSC_Error _dsc_add_btree_node(
-    restrict pBTreeNode_t root, 
-    const restrict pBTreeNode_t 
-    new_node, 
+static DscError_t _dsc_add_btree_node(
+    const pBTreeNode_t restrict root,
+    const pBTreeNode_t restrict new_node,
     insert_func inf
 ) {
     switch (inf(root, new_node)) {
@@ -39,12 +38,12 @@ static DSC_Error _dsc_add_btree_node(
         }
         /* Should not reach */
         default: {
-            return DSC_ERROR;
+            return DSC_EFAIL;
         }
     }
 }
 
-static pBTreeNode_t _dsc_get_btree_node(const restrict pBTreeNode_t root, sort_func sf) {
+static pBTreeNode_t _dsc_get_btree_node(const pBTreeNode_t restrict root, sort_func sf) {
     switch (sf(root)) {
         case SORT_EQ: {
             return root;
@@ -71,8 +70,8 @@ static pBTreeNode_t _dsc_get_btree_node(const restrict pBTreeNode_t root, sort_f
 }
 
 static pBTreeNode_t _dsc_get_btree_node_parent(
-    const restrict pBTreeNode_t root, 
-    const restrict pBTreeNode_t prev_node,
+    const pBTreeNode_t restrict root,
+    const pBTreeNode_t restrict prev_node,
     sort_func sf
 ) {
     switch (sf(root)) {
@@ -107,52 +106,52 @@ static pBTreeNode_t _dsc_get_btree_node_parent(
 static unsigned idx = 0;
 
 static void _dsc_get_btree_node_list_in_order(
-    restrict pBTreeNode_t root, 
-    pBTreeNode_t * restrict list, 
-    const size_t list_size
+    const pBTreeNode_t restrict root,
+    pBTreeNode_t * restrict list,
+    const size_t size
 ) {
-    if (!root || idx == list_size) 
+    if (!root || idx == size)
         return;
 
     if (root->left) {
-        _dsc_get_btree_node_list_in_order(root->left, list, list_size);
+        _dsc_get_btree_node_list_in_order(root->left, list, size);
     }
     list[idx++] = root;
     if (root->right) {
-        _dsc_get_btree_node_list_in_order(root->right, list, list_size);
+        _dsc_get_btree_node_list_in_order(root->right, list, size);
     }
 }
 
 static void _dsc_get_btree_node_list_pre_order(
-    restrict pBTreeNode_t root, 
-    pBTreeNode_t * restrict list, 
-    const size_t list_size 
+    const pBTreeNode_t restrict root,
+    pBTreeNode_t * restrict list,
+    const size_t size
 ) {
-    if (!root || idx == list_size) 
+    if (!root || idx == size)
         return;
 
     list[idx++] = root;
     if (root->left) {
-        _dsc_get_btree_node_list_pre_order(root->left, list, list_size);
-    } 
+        _dsc_get_btree_node_list_pre_order(root->left, list, size);
+    }
     if (root->right) {
-        _dsc_get_btree_node_list_pre_order(root->right, list, list_size);
+        _dsc_get_btree_node_list_pre_order(root->right, list, size);
     }
 }
 
 static void _dsc_get_btree_node_list_post_order(
-    restrict pBTreeNode_t root, 
-    pBTreeNode_t * restrict list, 
-    const size_t list_size 
+    const pBTreeNode_t restrict root,
+    pBTreeNode_t * restrict list,
+    const size_t size
 ) {
-    if (!root || idx == list_size) 
+    if (!root || idx == size)
         return;
 
     if (root->left) {
-        _dsc_get_btree_node_list_post_order(root->left, list, list_size);
-    } 
+        _dsc_get_btree_node_list_post_order(root->left, list, size);
+    }
     if (root->right) {
-        _dsc_get_btree_node_list_post_order(root->right, list, list_size);
+        _dsc_get_btree_node_list_post_order(root->right, list, size);
     }
     list[idx++] = root;
 }
@@ -164,52 +163,52 @@ static void _dsc_get_btree_node_list_post_order(
  */
 
 /**
- * @brief Create the root node for a binary tree
- * @since 24-02-2024 
- * @param[in] len The length of the data (usually 1 unless using a string)
+ * @brief Create the root node for a binary tree.
+ * @since 24-02-2024
+ * @param[in] nelem The number of elements for the buffer (usually 1 unless using a string)
  * @param[in] tsize The size of the data's type in bytes
  * @param[in] data A pointer to the initial data used in the root node
  * @returns The newly allocated root node for the tree
  */
 DSC_DECL pBTreeNode_t dsc_create_btree(
-    const size_t len, 
-    const size_t tsize, 
+    const size_t nelem,
+    const size_t tsize,
     const void * restrict data
 ) {
-    pBTreeNode_t root = { 0 }; 
+    pBTreeNode_t root = { 0 };
 
     /* Allocate btree node on heap */
     root = mmap(NULL, sizeof(BTreeNode_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
-    if (MAP_FAILED == root) {
-        DSC_ERROR("Failed to allocate memory for pBTreeNode_t");
+    if (root == MAP_FAILED) {
+        DSC_ERROR("Failed to allocate memory for BTreeNode_t");
         return NULL;
     }
 
     /* Allocate buffer space for data */
-    root->data = dsc_create_buffer(len, tsize);
+    root->data = dsc_create_buffer(nelem, tsize);
     if (!root->data.addr) {
         DSC_ERROR("Failed to allocate memory for the node's data");
         return NULL;
     }
 
-    memcpy(root->data.addr, data, len * tsize);
+    memcpy(root->data.addr, data, nelem * tsize);
 
     return root;
 }
 
 /**
- * @brief Add a new node to an existing tree
- * @since 24-02-2024 
- * @param[in] root The root node of the tree
+ * @brief Add a new node to the binary tree.
+ * @since 24-02-2024
+ * @param[in] root The root node of the binary tree
  * @param[in] data A pointer to the initial data used in the new node
- * @param[in] len The length of the data (usually 1 unless using a string)
+ * @param[in] nelem The number of elements for the buffer (usually 1 unless using a string)
  * @param[in] inf Pointer to the insert function
  * @returns A DSC_Error type corresponding to the exit status
  */
-DSC_DECL DSC_Error dsc_add_btree_node(
-    restrict pBTreeNode_t root, 
-    const void *data, 
-    const size_t len, 
+DSC_DECL DscError_t dsc_add_btree_node(
+    pBTreeNode_t restrict root,
+    const void * restrict data,
+    const size_t len,
     insert_func inf
 ) {
     if (!root) {
@@ -222,61 +221,60 @@ DSC_DECL DSC_Error dsc_add_btree_node(
 }
 
 /**
- * @brief Destroy a binary tree
+ * @brief Destroy a binary tree.
  * @warning You <em>must</em> provide the actual root node.
  *          To remove a child node use dsc_remove_btree_node.
- * @since 24-02-2024 
+ * @since 24-02-2024
  * @param[in] root The root node of the tree
- * @returns A DSC_Error type corresponding to the exit status
+ * @returns A DscError_t type corresponding to the exit status
  */
-DSC_DECL DSC_Error dsc_destroy_btree(restrict pBTreeNode_t root) {
+DSC_DECL DscError_t dsc_destroy_btree(pBTreeNode_t restrict root) {
     int status;
 
     if (!root) {
         DSC_ERROR("The node points to an invalid address");
         return DSC_EFAULT;
-    } 
+    }
 
     /* Post-order deletion so that root is deleted last */
     if (root->left) {
         dsc_destroy_btree(root->left);
-    } 
+    }
     if (root->right) {
         dsc_destroy_btree(root->right);
-    } 
+    }
 
     dsc_destroy_buffer(&root->data);
-    assert((long)root % sysconf(_SC_PAGE_SIZE) == 0);
     status = munmap(root, sizeof(*root));
     if (status != 0) {
         DSC_ERROR("Failed to unmap pBTreeNode_t struct");
-        return DSC_EFREE;
+        return DSC_EFAIL;
     }
 
     return DSC_EOK;
 }
 
 /**
- * @brief Remove a node from an existing tree, alongside its descendants
- * @since 24-02-2024 
+ * @brief Remove a node from an existing tree, alongside its descendants.
+ * @since 24-02-2024
  * @param[in] root The root node of the tree
  * @param[in] sf Pointer to the sort function
- * @returns A DSC_Error type corresponding to the exit status
+ * @returns A DscError_t type corresponding to the exit status
  */
-DSC_DECL DSC_Error dsc_remove_btree_node(restrict pBTreeNode_t root, sort_func sf) {
+DSC_DECL DscError_t dsc_remove_btree_node(pBTreeNode_t restrict root, sort_func sf) {
     pBTreeNode_t node = NULL;
     pBTreeNode_t parent = NULL;
 
     if (!root) {
         DSC_ERROR("The node points to an invalid address");
-        return DSC_ERROR;
+        return DSC_EFAIL;
     }
 
     node = dsc_get_btree_node(root, sf);
 
     if (!node) {
         DSC_ERROR("No nodes matching the sort function were found for removal");
-        return DSC_ERROR;
+        return DSC_EFAIL;
     } else {
         /* Reference to node in parent must be set to NULL */
         parent = dsc_get_btree_node_parent(root, sf);
@@ -295,13 +293,13 @@ DSC_DECL DSC_Error dsc_remove_btree_node(restrict pBTreeNode_t root, sort_func s
 }
 
 /**
- * @brief Returns a node from the tree matching the criteria of sf if it exists
- * @since 24-02-2024 
+ * @brief Returns a node from the tree matching the criteria of sf if it exists.
+ * @since 24-02-2024
  * @param[in] root The root node of the tree
  * @param[in] sf Pointer to the sort function
  * @returns The node if it was found; otherwise returns NULL
  */
-DSC_DECL pBTreeNode_t dsc_get_btree_node(const restrict pBTreeNode_t root, sort_func sf) {
+DSC_DECL pBTreeNode_t dsc_get_btree_node(const pBTreeNode_t restrict root, sort_func sf) {
     if (!root) {
         DSC_ERROR("The node points to an invalid address");
         return NULL;
@@ -311,13 +309,13 @@ DSC_DECL pBTreeNode_t dsc_get_btree_node(const restrict pBTreeNode_t root, sort_
 }
 
 /**
- * @brief Returns a node's parent from the tree matching the criteria of sf if it exists
- * @since 24-02-2024 
+ * @brief Returns a node's parent from the tree matching the criteria of sf if it exists.
+ * @since 24-02-2024
  * @param[in] root The root node of the tree
  * @param[in] sf Pointer to the sort function
  * @returns The node's parent if it was found; otherwise returns NULL
  */
-DSC_DECL pBTreeNode_t dsc_get_btree_node_parent(const restrict pBTreeNode_t root, sort_func sf) {
+DSC_DECL pBTreeNode_t dsc_get_btree_node_parent(const pBTreeNode_t restrict root, sort_func sf) {
     if (!root) {
         DSC_ERROR("The node points to an invalid address");
         return NULL;
@@ -330,19 +328,19 @@ DSC_DECL pBTreeNode_t dsc_get_btree_node_parent(const restrict pBTreeNode_t root
 }
 
 /**
- * @brief Flattens the tree into a list ordered according to method 
- * @since 24-02-2024 
+ * @brief Flattens the tree into a list ordered according to method.
+ * @since 24-02-2024
  * @param[in] root The root node of the tree
- * @param[in/out] list A pointer to an allocated memory region of 
+ * @param[in/out] list A pointer to an allocated memory region of
  *                sufficient size for each node in the tree
  * @param[in] The size of the list in bytes
  * @param[in] method The depth-first-search method by which the list will be ordered
  */
 DSC_DECL void dsc_get_btree_node_list(
-    const restrict pBTreeNode_t root, 
-    pBTreeNode_t * restrict list, 
-    const size_t list_size,
-    const DFSMethod method
+    const pBTreeNode_t restrict root,
+    pBTreeNode_t * restrict list,
+    const size_t size,
+    const DFSMethod_t method
 ) {
     if (!root) {
         DSC_ERROR("The node points to an invalid address");
@@ -356,15 +354,15 @@ DSC_DECL void dsc_get_btree_node_list(
 
     switch (method) {
         case IN_ORDER: {
-            _dsc_get_btree_node_list_in_order(root, list, list_size);
+            _dsc_get_btree_node_list_in_order(root, list, size);
             break;
         }
         case PRE_ORDER: {
-            _dsc_get_btree_node_list_pre_order(root, list, list_size);
+            _dsc_get_btree_node_list_pre_order(root, list, size);
             break;
         }
         case POST_ORDER: {
-            _dsc_get_btree_node_list_post_order(root, list, list_size);
+            _dsc_get_btree_node_list_post_order(root, list, size);
             break;
         }
     }

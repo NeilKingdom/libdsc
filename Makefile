@@ -14,7 +14,7 @@ TGT_INC_DIR := /usr/include/
 TGT_BIN_DIR := /usr/lib/
 
 SRCS := $(wildcard $(SRC_DIR)/*.c)
-DEPS := $(wildcard $(SRC_DIR)/*.h)
+DEPS := $(wildcard $(INC_DIR)/*.h)
 OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
 CCFLAGS += $(CCFLAGS_$(PROFILE)) -I$(INC_DIR) -std=c99 -Wall -Wextra -Wformat -Werror

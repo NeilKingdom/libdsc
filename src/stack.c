@@ -9,14 +9,8 @@
  * @version 1.0
  * @since 04/06/2022
 */
-#define _GNU_SOURCE
-#include <unistd.h>
-#include <assert.h>
-#include <string.h>
-#include <sys/mman.h>
 
-#include "../include/stack.h"
-#include "../include/buffer.h"
+#include "stack.h"
 
 /*
  * ===============================
@@ -44,22 +38,20 @@ static void  _dsc_pop_stack(restrict pStack_t stack) {
  */
 
 /**
- * Creates a new general purpose stack.
- *
- * @since 
+ * @brief Creates a new general purpose stack.
  */
-DSC_DECL stack_t dsc_create_stack(const size_t tsize) {
+DSC_DECL Stack_t dsc_create_stack(const size_t tsize) {
     if (tsize <= 0) {
         DSC_ERROR("Invalid argument");
-        return (stack_t){ 0 };
+        return (Stack_t){ 0 };
     }
-    return (stack_t){ .arena = dsc_create_buffer(1, tsize), .offset = 0};
+    return (Stack_t){ .arena = dsc_create_buffer(1, tsize), .offset = 0};
 }
 
-DSC_DECL DSC_Error dsc_destroy_stack(pStack_t stack) {
+DSC_DECL DscError_t dsc_destroy_stack(pStack_t restrict stack) {
     if (!stack->arena.addr) {
         DSC_ERROR("Attempted double free");
-        return DSC_EFREE;
+        return DSC_EFAIL;
     }
 
     dsc_destroy_buffer(&stack->arena);
@@ -68,7 +60,7 @@ DSC_DECL DSC_Error dsc_destroy_stack(pStack_t stack) {
     return DSC_EOK;
 }
 
-DSC_DECL DSC_Error dsc_push_stack(restrict pStack_t stack, void * restrict data) {
+DSC_DECL DscError_t dsc_push_stack(pStack_t restrict stack, void *data) {
     size_t new_size;
 
     if (pop_pending) {
@@ -93,7 +85,7 @@ DSC_DECL DSC_Error dsc_push_stack(restrict pStack_t stack, void * restrict data)
     return DSC_EOK;
 }
 
-DSC_DECL void *dsc_pop_stack(pStack_t stack) {
+DSC_DECL void *dsc_pop_stack(pStack_t restrict stack) {
     if (pop_pending) {
         _dsc_pop_stack(stack);
     }
@@ -111,7 +103,7 @@ DSC_DECL void *dsc_pop_stack(pStack_t stack) {
     return (stack->arena.addr + stack->offset - stack->arena.tsize);
 }
 
-DSC_DECL void *dsc_peek_stack(pStack_t stack) {
+DSC_DECL void *dsc_peek_stack(pStack_t restrict stack) {
     if (pop_pending) {
         _dsc_pop_stack(stack);
     }
@@ -128,15 +120,15 @@ DSC_DECL void *dsc_peek_stack(pStack_t stack) {
     return (stack->arena.addr + stack->offset - stack->arena.tsize);
 }
 
-DSC_DECL ssize_t dsc_get_stack_size(pStack_t stack) {
+DSC_DECL ssize_t dsc_get_stack_size(pStack_t restrict stack) {
     if (pop_pending) {
         _dsc_pop_stack(stack);
     }
 
     if (!stack->arena.addr) {
         DSC_ERROR("The stack points to an invalid address");
-        return -1;
-    } 
+        return DSC_EFAIL;
+    }
 
     return (stack->offset / stack->arena.tsize);
 }

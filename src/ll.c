@@ -8,14 +8,8 @@
  * @version 1.0
  * @since 06/22/2023
 */
-#define _GNU_SOURCE
-#include <assert.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <sys/mman.h>
 
-#include "../include/buffer.h"
-#include "../include/ll.h"
+#include "ll.h"
 
 /*
  * ===============================
@@ -30,7 +24,7 @@
  * @param [in] np A pointer to a LLNode_t
  * @returns A status code representing the state of operations upon completion
  */
-static int _dsc_del_ll_node(pLLNode_t np) {
+static DscError_t _dsc_del_ll_node(pLLNode_t np) {
    int status;
 
    if (!np) {
@@ -41,7 +35,7 @@ static int _dsc_del_ll_node(pLLNode_t np) {
       status = munmap(np, sizeof(LLNode_t));
       if (status != 0) {
          DSC_ERROR("Failed to unmap pLLNode_t struct");
-         return DSC_EFREE;
+         return DSC_EFAIL;
       }
 
       np = NULL;
@@ -79,7 +73,7 @@ DSC_DECL pLLNode_t dsc_create_ll(const size_t tsize, void *data) {
    return head;
 }
 
-DSC_DECL DSC_Error dsc_add_ll_node(pLLNode_t head, void *data) {
+DSC_DECL DscError_t dsc_add_ll_node(pLLNode_t restrict head, void *data) {
    pLLNode_t new_node = NULL;
    pLLNode_t tmp = head;
 
@@ -91,7 +85,7 @@ DSC_DECL DSC_Error dsc_add_ll_node(pLLNode_t head, void *data) {
    new_node = mmap(NULL, sizeof(LLNode_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
    if (MAP_FAILED == new_node) {
       DSC_ERROR("Failed to allocate memory for pLLNode_t");
-      return DSC_ERROR;
+      return DSC_EFAIL;
    }
 
    /* Allocate space for the node's data */
@@ -99,7 +93,7 @@ DSC_DECL DSC_Error dsc_add_ll_node(pLLNode_t head, void *data) {
    new_node->data = dsc_create_buffer(1, head->data.tsize);
    if (new_node->data.addr == NULL) {
       DSC_ERROR("Failed to allocate memory for the node's data");
-      return DSC_ERROR;
+      return DSC_EFAIL;
    }
 
    /* Copy data passed by user to the memory segment */
@@ -111,18 +105,18 @@ DSC_DECL DSC_Error dsc_add_ll_node(pLLNode_t head, void *data) {
 }
 
 /* TODO: Doesn't account for deleting head */
-DSC_DECL DSC_Error dsc_del_ll_node(pLLNode_t head, const unsigned index) {
+DSC_DECL DscError_t dsc_del_ll_node(pLLNode_t restrict head, const unsigned idx) {
    int i = 0;
    pLLNode_t tmp = head;
    pLLNode_t prev = tmp; /* Keep track of previous node in case we need to delete last node */
 
-   while (tmp->next && i < index) {
+   while (tmp->next && i < idx) {
       prev = tmp;
       tmp = tmp->next;
       i++;
    }
 
-   if (i == index) {
+   if (i == idx) {
       if (tmp->next && tmp->next->next) {
          dsc_destroy_buffer(&tmp->next->data);
          _dsc_del_ll_node(tmp->next);
@@ -150,7 +144,7 @@ DSC_DECL DSC_Error dsc_del_ll_node(pLLNode_t head, const unsigned index) {
 }
 
 /* TODO: Add check to see if head contains data */
-DSC_DECL ssize_t dsc_get_ll_len(pLLNode_t head) {
+DSC_DECL ssize_t dsc_get_ll_len(pLLNode_t restrict head) {
    ssize_t i = 1;
    pLLNode_t tmp = head;
 
@@ -162,16 +156,16 @@ DSC_DECL ssize_t dsc_get_ll_len(pLLNode_t head) {
    return i;
 }
 
-DSC_DECL pLLNode_t dsc_get_ll_node(pLLNode_t head, const unsigned index) {
+DSC_DECL pLLNode_t dsc_get_ll_node(pLLNode_t head, const unsigned idx) {
    int i = 0;
    pLLNode_t tmp = head;
 
-   while (tmp->next && i < index) {
+   while (tmp->next && i < idx) {
       tmp = tmp->next;
       i++;
    }
 
-   if (i == index) {
+   if (i == idx) {
       return tmp;
    } else {
       DSC_ERROR("Tried to access a node that was out of bounds");
@@ -179,7 +173,7 @@ DSC_DECL pLLNode_t dsc_get_ll_node(pLLNode_t head, const unsigned index) {
    }
 }
 
-DSC_DECL DSC_Error dsc_clear_ll(pLLNode_t head, const uint8_t byte) {
+DSC_DECL DscError_t dsc_clear_ll(pLLNode_t restrict head, const uint8_t byte) {
    int status;
    pLLNode_t tmp = head;
 
@@ -195,7 +189,7 @@ DSC_DECL DSC_Error dsc_clear_ll(pLLNode_t head, const uint8_t byte) {
    return DSC_EOK;
 }
 
-DSC_DECL DSC_Error dsc_destroy_ll(pLLNode_t head) {
+DSC_DECL DscError_t dsc_destroy_ll(pLLNode_t restrict head) {
    pLLNode_t tmp = head;
    pLLNode_t prev;
 

@@ -7,11 +7,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct buffer {
-   void  *addr;  /* Address of the memory region */
-   size_t tsize; /* The datatype size */
-   size_t bsize; /* The buffer size */
-} *pBuffer_t, buffer_t;
+typedef struct {
+   void  *addr;  /* Base address of the memory region */
+   size_t tsize; /* The size (in bytes) of the data type used for the buffer's memory region */
+   size_t bsize; /* The size (in bytes) of the buffer's memory region */
+} *pBuffer_t, Buffer_t;
 
 /* Buffer type cast macro helper functions */
 #define DSC_BUF_VOID(buf)        ((void *)((buf).addr))
@@ -63,11 +63,12 @@ typedef struct buffer {
 #define DSC_PBUF_UINT64(buf)     ((uint64_t *)((buf)->addr))
 
 /* Forward function declarations */
-DSC_DECL buffer_t    dsc_create_buffer(const size_t len, const size_t tsize);
-DSC_DECL DSC_Error   dsc_clear_buffer(buffer_t buf, const uint8_t byte);
-DSC_DECL size_t      dsc_get_buffer_capacity(buffer_t buf);
-DSC_DECL DSC_Error   dsc_destroy_buffer(pBuffer_t buf);
-DSC_DECL DSC_Error   dsc_resize_buffer(pBuffer_t buf, const size_t newlen);
+
+DSC_DECL Buffer_t       dsc_create_buffer(const size_t len, const size_t tsize);
+DSC_DECL DscError_t     dsc_destroy_buffer(pBuffer_t buf);
+DSC_DECL DscError_t     dsc_resize_buffer(pBuffer_t buf, const size_t newlen);
+DSC_DECL DscError_t     dsc_clear_buffer(Buffer_t buf, const uint8_t byte);
+DSC_DECL ssize_t        dsc_get_buffer_capacity(const Buffer_t buf);
 
 #ifdef __cplusplus
 }
