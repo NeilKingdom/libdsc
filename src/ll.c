@@ -1,9 +1,9 @@
 /**
- * @file
+ * @file ll.c
  * @author Neil Kingdom
  * @version 1.0
- * @since 06/22/2023
- * @brief
+ * @since 06-22-2023
+ * @brief Provides APIs for managing a singly linked list.
 */
 
 #include "ll.h"
@@ -15,30 +15,29 @@
  */
 
 /**
- * Free an allocated pLLNode_t struct.
- *
- * @since 06/22/2023
- * @param [in] np A pointer to a LLNode_t
- * @returns A status code representing the state of operations upon completion
+ * @brief Free an allocated pLLNode_t struct.
+ * @since 06-22-2023
+ * @param [in] node A pointer to the node being removed
+ * @returns A DscError_t representing the exit status code
  */
-static DscError_t _dsc_del_ll_node(pLLNode_t node) {
-   int status;
+static DscError_t _dsc_ll_remove_node(LLNode_t *node) {
+    int status;
 
-   if (!node) {
-      DSC_ERROR("The node points to an invalid address");
-      return DSC_EFAULT;
-   } else {
-      assert((long)node % sysconf(_SC_PAGE_SIZE) == 0);
-      status = munmap(node, sizeof(LLNode_t));
-      if (status != 0) {
-         DSC_ERROR("Failed to unmap pLLNode_t struct");
-         return DSC_EFAIL;
-      }
+    if (!node) {
+        DSC_LOG("The node points to an invalid address", DSC_ERROR);
+        return DSC_EFAULT;
+    } else {
+        assert((long)node % sysconf(_SC_PAGE_SIZE) == 0);
+        status = munmap(node, sizeof(LLNode_t));
+        if (status != 0) {
+            DSC_LOG("Failed to unmap pLLNode_t struct", DSC_WARNING);
+            return DSC_EFAIL;
+        }
 
-      node = NULL;
-   }
+        node = NULL;
+    }
 
-   return DSC_EOK;
+    return DSC_EOK;
 }
 
 /*
@@ -47,159 +46,180 @@ static DscError_t _dsc_del_ll_node(pLLNode_t node) {
  * ===============================
  */
 
-DSC_DECL pLLNode_t dsc_create_ll(const size_t tsize, void *data) {
-   pLLNode_t head = NULL;
+/**
+ * @brief Creates the head node of the singly linked list.
+ * @since 06-22-2023
+ * @param tsize The size (in bytes) of the data type used by this linked list
+ * @param data Optional data to initialize the head node with
+ * @returns The head node of the linked list, which is used by the other APIs
+ */
+DSC_DECL LLNode_t *dsc_ll_create(const size_t tsize, const void* const data) {
+    LLNode_t *head = NULL;
 
-   /* Allocate space for the node struct */
-   head = mmap(NULL, sizeof(LLNode_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
-   if (MAP_FAILED == head) {
-      DSC_ERROR("Failed to allocate memory for pLLNode_t");
-      return NULL;
-   }
+    /* Allocate space for the head node */
+    head = mmap(NULL, sizeof(LLNode_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
+    if (head == MAP_FAILED) {
+        DSC_LOG("Failed to allocate memory for linked list node", DSC_ERROR);
+        return head;
+    }
 
-   head->next = NULL;
-   head->data = dsc_create_buffer(1, tsize);
-   if (head->data.addr == NULL) {
-      DSC_ERROR("Failed to allocate memory for the node's data");
-      return NULL;
-   }
+    head->data = dsc_buf_create(1, tsize);
+    if (head->data.addr == NULL) {
+        return head;
+    }
 
-   /* Copy data passed by user to the memory segment */
-   memcpy(head->data.addr, data, tsize);
+    /* Copy data passed by user to the memory segment */
+    if (data != NULL) {
+        memcpy(head->data.addr, data, tsize);
+    }
 
-   return head;
+    return head;
 }
 
-DSC_DECL DscError_t dsc_add_ll_node(pLLNode_t restrict head, void *data) {
-   pLLNode_t new_node = NULL;
-   pLLNode_t tmp = head;
+/**
+ * @brief Destroys each node in a linked list starting at head.
+ * @since 06-22-2023
+ * @param head The node at which the deletion will begin until the end of the list
+ * @returns A DscError_t representing the exit status code
+ */
+DSC_DECL DscError_t dsc_destroy_ll(LLNode_t *head) {
+    LLNode_t *tmp = head;
+    LLNode_t *prev;
 
-   while (tmp->next) {
-      tmp = tmp->next;
-   }
+    while (tmp->next) {
+        prev = tmp;
+        tmp = tmp->next;
 
-   /* Allocate space for the node struct */
-   new_node = mmap(NULL, sizeof(LLNode_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
-   if (MAP_FAILED == new_node) {
-      DSC_ERROR("Failed to allocate memory for pLLNode_t");
-      return DSC_EFAIL;
-   }
+        dsc_buf_destroy(&prev->data);
+        _dsc_ll_remove_node(prev);
+    }
 
-   /* Allocate space for the node's data */
-   new_node->next = NULL;
-   new_node->data = dsc_create_buffer(1, head->data.tsize);
-   if (new_node->data.addr == NULL) {
-      DSC_ERROR("Failed to allocate memory for the node's data");
-      return DSC_EFAIL;
-   }
+    dsc_buf_destroy(&tmp->data);
+    _dsc_ll_remove_node(tmp);
 
-   /* Copy data passed by user to the memory segment */
-   memcpy(new_node->data.addr, data, head->data.tsize);
-
-   tmp->next = new_node;
-
-   return DSC_EOK;
+    return DSC_EOK;
 }
 
-/* TODO: Doesn't account for deleting head */
-DSC_DECL DscError_t dsc_del_ll_node(pLLNode_t restrict head, const unsigned idx) {
-   int i = 0;
-   pLLNode_t tmp = head;
-   pLLNode_t prev = tmp; /* Keep track of previous node in case we need to delete last node */
+/**
+ * @brief Destroys each node in a linked list starting at head.
+ * @since 06-22-2023
+ * @param head The node at which the deletion will begin until the end of the list
+ * @returns A DscError_t representing the exit status code
+ */
+DSC_DECL DscError_t dsc_ll_fill(LLNode_t *head, const uint8_t byte) {
+    int status;
+    LLNode_t *tmp = head;
 
-   while (tmp->next && i < idx) {
-      prev = tmp;
-      tmp = tmp->next;
-      i++;
-   }
+    while (tmp->next) {
+        status = dsc_buf_fill(&tmp->data, byte);
+        if (status != DSC_EOK) {
+            return status;
+        }
+        tmp = tmp->next;
+    }
 
-   if (i == idx) {
-      if (tmp->next && tmp->next->next) {
-         dsc_destroy_buffer(&tmp->next->data);
-         _dsc_del_ll_node(tmp->next);
-         tmp->next = tmp->next->next;
-      } else if (tmp->next) { /* Deleting second to last node */
-         dsc_destroy_buffer(&tmp->next->data);
-         _dsc_del_ll_node(tmp->next);
-         tmp->next = NULL;
-      } else { /* Deleting last node in the list */
-         if (prev == tmp) { /* Last node is the only node left */
-            dsc_destroy_buffer(&tmp->data);
-            _dsc_del_ll_node(tmp);
-         } else { /* Last node is not the only node left */
-            dsc_destroy_buffer(&tmp->data);
-            _dsc_del_ll_node(tmp);
+    return DSC_EOK;
+}
+
+DSC_DECL DscError_t dsc_ll_add_node(LLNode_t *head, const void* const data) {
+    LLNode_t *new_node = NULL;
+    LLNode_t *tmp = head;
+
+    while (tmp->next) {
+        tmp = tmp->next;
+    }
+
+    /* Allocate space for the node struct */
+    new_node = mmap(NULL, sizeof(LLNode_t), (PROT_READ | PROT_WRITE), (MAP_SHARED | MAP_ANON), -1, 0);
+    if (new_node == MAP_FAILED) {
+        DSC_LOG("Failed to allocate memory for linked list node", DSC_ERROR);
+        return DSC_EFAIL;
+    }
+
+    /* Allocate space for the node's data */
+    new_node->next = NULL;
+    new_node->data = dsc_buf_create(1, head->data.tsize);
+    if (new_node->data.addr == NULL) {
+        return DSC_EFAIL;
+    }
+
+    /* Copy data passed by user to the memory segment */
+    memcpy(new_node->data.addr, data, head->data.tsize);
+    tmp->next = new_node;
+
+    return DSC_EOK;
+}
+
+DSC_DECL DscError_t dsc_ll_remove_node(LLNode_t *head, const unsigned idx) {
+    int i = 0;
+    LLNode_t *tmp = head;
+    LLNode_t *prev = tmp;
+
+    while (tmp->next && i < idx) {
+        prev = tmp;
+        tmp = tmp->next;
+        i++;
+    }
+
+    if (i == idx) {
+        /* Deleting intermediary node */
+        if (tmp->next && tmp->next->next) {
+            dsc_buf_destroy(&tmp->next->data);
+            _dsc_ll_remove_node(tmp->next);
+            tmp->next = tmp->next->next;
+        /* Deleting last node */
+        } else if (tmp->next) {
+            dsc_buf_destroy(&tmp->next->data);
+            _dsc_ll_remove_node(tmp->next);
+            tmp->next = NULL;
+        /* Deleting first node */
+        } else if (prev == tmp) {
+            dsc_buf_destroy(&tmp->data);
+            _dsc_ll_remove_node(tmp);
+        /* Special case for deleting second node */
+        } else {
+            dsc_buf_destroy(&tmp->data);
+            _dsc_ll_remove_node(tmp);
             prev->next = NULL;
-         }
-      }
-   } else {
-      DSC_ERROR("Tried to free a node that was out of bounds");
-      return DSC_EINVAL;
-   }
+        }
+    } else {
+        DSC_LOG("Index provided for node removal was outside the bounds of the linked list", DSC_WARNING);
+        return DSC_EINVAL;
+    }
 
-   return DSC_EOK;
+    return DSC_EOK;
 }
 
-/* TODO: Add check to see if head contains data */
-DSC_DECL ssize_t dsc_get_ll_len(pLLNode_t restrict head) {
-   ssize_t i = 1;
-   pLLNode_t tmp = head;
+DSC_DECL LLNode_t *dsc_ll_retrieve_node(LLNode_t *head, const unsigned idx) {
+    int i = 0;
+    LLNode_t *tmp = head;
 
-   while (tmp->next) {
-      tmp = tmp->next;
-      i++;
-   }
+    while (tmp->next && i < idx) {
+        tmp = tmp->next;
+        i++;
+    }
 
-   return i;
+    if (i == idx) {
+        return tmp;
+    } else {
+        DSC_LOG("Index provided for node removal was outside the bounds of the linked list", DSC_WARNING);
+        return NULL;
+    }
 }
 
-DSC_DECL pLLNode_t dsc_get_ll_node(pLLNode_t head, const unsigned idx) {
-   int i = 0;
-   pLLNode_t tmp = head;
+DSC_DECL ssize_t dsc_ll_num_nodes(LLNode_t *head) {
+    ssize_t i = 1;
+    LLNode_t *tmp = head;
 
-   while (tmp->next && i < idx) {
-      tmp = tmp->next;
-      i++;
-   }
+    if (head == NULL) {
+        DSC_LOG("Invalid value for head provided", DSC_ERROR);
+        return -1;
+    }
 
-   if (i == idx) {
-      return tmp;
-   } else {
-      DSC_ERROR("Tried to access a node that was out of bounds");
-      return NULL;
-   }
-}
+    while (tmp->next) {
+        tmp = tmp->next;
+        i++;
+    }
 
-DSC_DECL DscError_t dsc_clear_ll(pLLNode_t restrict head, const uint8_t byte) {
-   int status;
-   pLLNode_t tmp = head;
-
-   while (tmp->next) {
-      status = dsc_clear_buffer(tmp->data, byte);
-      if (status != DSC_EOK) {
-         DSC_ERROR("Failed to clear data for node");
-         return status;
-      }
-      tmp = tmp->next;
-   }
-
-   return DSC_EOK;
-}
-
-DSC_DECL DscError_t dsc_destroy_ll(pLLNode_t restrict head) {
-   pLLNode_t tmp = head;
-   pLLNode_t prev;
-
-   while (tmp->next) {
-      prev = tmp;
-      tmp = tmp->next;
-
-      dsc_destroy_buffer(&prev->data);
-      _dsc_del_ll_node(prev);
-   }
-
-   dsc_destroy_buffer(&tmp->data);
-   _dsc_del_ll_node(tmp);
-
-   return DSC_EOK;
+    return i;
 }

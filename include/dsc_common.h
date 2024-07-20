@@ -33,6 +33,12 @@ typedef enum {
     DSC_EOVERFLOW   =  75,  /* Value too large to be stored in data type */
 } DscError_t;
 
+typedef enum {
+    DSC_NOTE,
+    DSC_WARNING,
+    DSC_ERROR
+} DscLogLevel_t;
+
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
@@ -40,25 +46,43 @@ typedef enum {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"
 #endif
-static void _dsc_error(const char *file, const char *func, const int line, const char *msg) {
-    fprintf(
-        stderr,
-        "\n=========== ERROR ===========\n"
-        "Backtrace:\n\n"
-        "File: %s, Function: %s, Line: %d\n"
-        "Short message: %s\n"
-        "Errno message: %s\n",
-        file, func, line, msg, strerror(errno)
+
+static void _dsc_log(
+    const char *file,
+    const char *func,
+    const int line,
+    const char *msg,
+    const DscLogLevel_t level) {
+
+    char header[20];
+    switch (level) {
+        case DSC_NOTE:
+            strncpy(header, "NOTE", 20);
+            break;
+        case DSC_WARNING:
+            strncpy(header, "WARNING", 20);
+            break;
+        case DSC_ERROR:
+            strncpy(header, "ERROR", 20);
+            break;
+    }
+
+    fprintf((level == DSC_NOTE) ? stdout : stderr,
+        "\n=========== %s ===========\n"
+        "Logger: %s\n"
+        "File: %s, Function: %s, Line: %d\n",
+        header, msg, file, func, line
     );
 }
+
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #elif defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 
-#define DSC_ERROR(msg) do { \
-    _dsc_error((__FILE__), (__func__), (__LINE__), (msg)); \
+#define DSC_LOG(msg, level) do { \
+    _dsc_log((__FILE__), (__func__), (__LINE__), (msg), (level)); \
 } while (0)
 
 #ifdef __cplusplus

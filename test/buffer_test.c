@@ -2,49 +2,41 @@
 #include <stdlib.h>
 #include <check.h>
 
-#include "../include/buffer.h"
-
-#define BTYPE int
-#define TSIZE sizeof(BTYPE)
-#define BLEN (size_t)10
+#include "buffer.h"
 
 START_TEST(CreateBuffer) {
-    buffer_t buf = dsc_create_buffer(BLEN, TSIZE);
-    ck_assert_ptr_nonnull(buf.addr); // Ensure internal buffer memory is not NULL
-    ck_assert_int_eq((int)dsc_get_buffer_capacity(buf), BLEN); // Ensure length is correct
-    ck_assert_int_eq((int)buf.bsize, (BLEN * TSIZE)); // Ensure size is correct
+    Buffer_t buf = dsc_buf_create(10, sizeof(int));
+    ck_assert_ptr_nonnull(buf.addr);
+    ck_assert_int_eq(buf.tsize, sizeof(int));
+    ck_assert_int_eq(dsc_buf_capacity(buf), (10 * sizeof(int)));
+    dsc_buf_destroy(&buf);
 }
 END_TEST
 
 START_TEST(ResizeBuffer) {
-    buffer_t buf = dsc_create_buffer(BLEN, TSIZE);
-
-#undef BLEN
-#define BLEN (size_t)20
-
-    dsc_resize_buffer(&buf, BLEN);
-    ck_assert_ptr_nonnull(buf.addr); // Ensure internal buffer memory is still not NULL
-    ck_assert_int_eq((int)dsc_get_buffer_capacity(buf), BLEN); // Ensure length is correct
-    ck_assert_int_eq((int)buf.bsize, (BLEN * TSIZE)); // Ensure size is correct
-    dsc_destroy_buffer(&buf);
+    Buffer_t buf = dsc_buf_create(5, sizeof(short));
+    dsc_buf_resize(&buf, 10);
+    ck_assert_int_eq(dsc_buf_capacity(buf), (10 * sizeof(short)));
+    ck_assert_int_eq(buf.tsize, sizeof(short));
+    dsc_buf_destroy(&buf);
 }
 END_TEST
 
 START_TEST(Memcpy) {
-    const char *test_msg = "Hello World!";
-    buffer_t buf = dsc_create_buffer(BLEN, TSIZE);
-    memcpy(DSC_BUF_VOID(buf), (void *)test_msg, strlen(test_msg) + 1);
-    ck_assert_str_eq(test_msg, DSC_BUF_CHAR(buf)); // Ensure buffer copied string contents properly
-    dsc_destroy_buffer(&buf);
+    const char *test_str = "Hello, World!";
+    Buffer_t buf = dsc_buf_create(1, sizeof(char*));
+    memcpy(buf.addr, test_str, strlen(test_str) + 1);
+    ck_assert_str_eq(test_str, DSC_BUF_AS_CHAR(buf));
+    dsc_buf_destroy(&buf);
 }
 END_TEST
 
 START_TEST(FreeBuffer) {
-    buffer_t buf = dsc_create_buffer(BLEN, TSIZE);
-    dsc_destroy_buffer(&buf);
-    ck_assert_ptr_null(buf.addr); // Assert that buf is not a dangling pointer
-    ck_assert_int_eq((int)buf.bsize, 0); // Assert size is 0
-    ck_assert_int_eq(dsc_destroy_buffer(&buf), DSC_EFREE); // Double free
+    Buffer_t buf = dsc_buf_create(1, 1);
+    dsc_buf_destroy(&buf);
+    ck_assert_ptr_null(buf.addr);
+    ck_assert_int_eq(buf.bsize, 0);
+    ck_assert_int_eq(dsc_buf_destroy(&buf), DSC_EFAIL);
 }
 END_TEST
 
