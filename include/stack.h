@@ -8,21 +8,16 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct stack {
-    Buffer_t arena;  /* The resizable memory arena for the stack's contents */
-    size_t   offset; /* An offset into the memory arena */
-} *pStack_t, Stack_t;
-
-static bool pop_pending = false; /* Used so that we can return the data at the address before resizing buffer */
+typedef Buffer_t Stack_t; /* Stack is just a buffer of buffers */
 
 /* Forward function declarations */
 
-DSC_DECL Stack_t        dsc_create_stack(const size_t tsize);
-DSC_DECL ssize_t        dsc_get_stack_size(pStack_t stack);
-DSC_DECL void          *dsc_peek_stack(pStack_t stack);
-DSC_DECL void          *dsc_pop_stack(pStack_t stack);
-DSC_DECL DscError_t     dsc_push_stack(pStack_t stack, void *data);
-DSC_DECL DscError_t     dsc_destroy_stack(pStack_t stack);
+DSC_DECL Stack_t        dsc_stack_create(const size_t tsize);
+DSC_DECL DscError_t     dsc_stack_destroy(Stack_t *stack);
+DSC_DECL DscError_t     dsc_stack_push(Stack_t *stack, const void* const data);
+DSC_DECL Buffer_t       dsc_stack_pop(Stack_t stack);
+DSC_DECL Buffer_t       dsc_stack_peek(const Stack_t stack);
+DSC_DECL ssize_t        dsc_stack_capacity(const Stack_t stack);
 
 #ifdef __cplusplus
 }

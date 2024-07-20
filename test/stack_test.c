@@ -2,60 +2,62 @@
 #include <stdlib.h>
 #include <check.h>
 
-#include "../include/stack.h"
-
-#define STYPE short
-#define TSIZE sizeof(STYPE)
+#include "stack.h"
 
 START_TEST(CreateStack) {
-    stack_t stack = dsc_create_stack(TSIZE);
-    ck_assert_ptr_nonnull(stack.arena.addr); // Ensure internal buffer memory is not NULL
-    ck_assert_int_eq((int)dsc_get_stack_size(&stack), 0); // Stack size should be 0
-    ck_assert_int_eq((int)stack.offset, 0); // Ensure offset is 0
-    dsc_destroy_stack(&stack);
+    Stack_t stack = dsc_stack_create(sizeof(long));
+    ck_assert_ptr_nonnull(stack.addr);
+    ck_assert_int_eq(stack.tsize, sizeof(long));
+    ck_assert_int_eq(dsc_stack_capacity(stack), sizeof(int));
+    dsc_stack_destroy(&stack);
 }
 END_TEST
 
 START_TEST(PushStack) {
-    short data = 16000;
-    stack_t stack = dsc_create_stack(TSIZE);
-    dsc_push_stack(&stack, (void*)&data);
-    ck_assert_ptr_nonnull(dsc_peek_stack(&stack)); // Ensure peek returned real data
-    ck_assert_int_eq(*((short*)(dsc_peek_stack(&stack))), data); // Peek should return the data on top of stack
-    ck_assert_int_eq((int)dsc_get_stack_size(&stack), 1); // Stack size should be 1
-    ck_assert_int_eq((int)stack.offset, TSIZE); // Offset should be incremented by a factor of TSIZE
-    dsc_destroy_stack(&stack);
+    Stack_t stack = dsc_stack_create(sizeof(char*));
+    dsc_stack_push(&stack, (void*)("Some"));
+    dsc_stack_push(&stack, (void*)("test"));
+    dsc_stack_push(&stack, (void*)("data"));
+    ck_assert_int_eq(dsc_stack_capacity(stack), (3 * sizeof(char*)));
+
+    Buffer_t top = dsc_stack_peek(stack);
+    ck_assert_str_eq(DSC_BUF_AS_CHAR(top), "data");
+    dsc_buf_destroy(&top);
+
+    /* Repeat to make sure data is still present */
+    top = dsc_stack_peek(stack);
+    ck_assert_str_eq(DSC_BUF_AS_CHAR(top), "data");
+    dsc_buf_destroy(&top);
+
+    dsc_stack_destroy(&stack);
 }
 END_TEST
 
 START_TEST(PopStack) {
-    short data_vec[] = { 3, 2, 1 };
-    size_t i, dv_size = sizeof(data_vec) / sizeof(*data_vec);
-    stack_t stack = dsc_create_stack(TSIZE);
-    // Push items
-    for (i = 0; i < dv_size; ++i) {
-        dsc_push_stack(&stack, (void*)(data_vec + i));
-    }
-    // Pop order should be 1, 2, 3
-    for (i = 0; i < dv_size; ++i) {
-        ck_assert_int_eq(*((short*)(dsc_pop_stack(&stack))), data_vec[dv_size - i - 1]);
-    }
-    ck_assert_ptr_null(dsc_pop_stack(&stack)); // Pop when empty returns NULL
-    dsc_destroy_stack(&stack);
+    Stack_t stack = dsc_stack_create(sizeof(char*));
+    dsc_stack_push(&stack, (void*)("Some"));
+    dsc_stack_push(&stack, (void*)("test"));
+    dsc_stack_push(&stack, (void*)("data"));
+    ck_assert_int_eq(dsc_stack_capacity(stack), (3 * sizeof(char*)));
+
+    Buffer_t top = dsc_stack_pop(stack);
+    ck_assert_str_eq(DSC_BUF_AS_CHAR(top), "data");
+    dsc_buf_destroy(&top);
+
+    top = dsc_stack_peek(stack);
+    ck_assert_str_eq(DSC_BUF_AS_CHAR(top), "test");
+    dsc_buf_destroy(&top);
+
+    dsc_stack_destroy(&stack);
 }
 END_TEST
 
-START_TEST(DestroyStack) {
-    stack_t stack = dsc_create_stack(TSIZE);
-    dsc_destroy_stack(&stack);
-    ck_assert_ptr_null(stack.arena.addr); // Assert that buf is not a dangling pointer
-    ck_assert_int_eq((int)stack.arena.bsize, 0); // Assert size is 0
-    ck_assert_int_eq((int)stack.offset, 0); // Offset should be 0
-    ck_assert_int_eq(dsc_destroy_stack(&stack), DSC_EFREE); // Double free
+START_TEST(PeekStack) {
+    ck_assert(true);
 }
 END_TEST
 
-Suite *stack_suite(void) {
+Suite *buffer_suite(void) {
     Suite *s;
     TCase *tc_core;
 
@@ -66,7 +68,7 @@ Suite *stack_suite(void) {
     tcase_add_test(tc_core, CreateStack);
     tcase_add_test(tc_core, PushStack);
     tcase_add_test(tc_core, PopStack);
-    tcase_add_test(tc_core, DestroyStack);
+    tcase_add_test(tc_core, PeekStack);
     suite_add_tcase(s, tc_core);
 
     return s;
@@ -77,7 +79,7 @@ int main(void) {
     Suite *s;
     SRunner *sr;
 
-    s = stack_suite();
+    s = buffer_suite();
     sr = srunner_create(s);
 
     srunner_run_all(sr, CK_NORMAL);

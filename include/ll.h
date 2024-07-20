@@ -20,6 +20,7 @@ DSC_DECL DscError_t     dsc_ll_destroy(LLNode_t *head);
 DSC_DECL DscError_t     dsc_ll_fill(LLNode_t *head, const uint8_t byte);
 DSC_DECL DscError_t     dsc_ll_add_node(LLNode_t *head, const void* const data);
 DSC_DECL DscError_t     dsc_ll_remove_node(LLNode_t *head, const unsigned idx);
+/* TODO: Add insert_node */
 DSC_DECL LLNode_t*      dsc_ll_retrieve_node(LLNode_t *head, const unsigned idx);
 DSC_DECL ssize_t        dsc_ll_num_nodes(LLNode_t *head);
 

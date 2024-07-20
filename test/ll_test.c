@@ -2,57 +2,75 @@
 #include <stdlib.h>
 #include <check.h>
 
-#include "../include/ll.h"
-#include "../include/buffer.h"
-
-#define BTYPE char[32]
-#define TSIZE sizeof(BTYPE)
+#include "ll.h"
+#include "buffer.h"
 
 START_TEST(CreateLL) {
-    const char *greeting = "Hello, World!";
-    pLLNode_t head = dsc_create_ll(TSIZE, (void*)greeting);
-    ck_assert_int_eq((int)head->data.tsize, (int)TSIZE);
+    const char *test_str = "Hello, World!";
+
+    LLNode_t *head = dsc_ll_create(sizeof(char*), (void*)test_str);
+    ck_assert_int_eq(head->data.tsize, sizeof(char*));
     ck_assert_ptr_null(head->next);
-    ck_assert_str_eq(DSC_BUF_CHAR(head->data), greeting);
-    dsc_destroy_ll(head);
+    ck_assert_str_eq(DSC_BUF_AS_CHAR(head->data), test_str);
+
+    dsc_ll_destroy(head);
 }
 END_TEST
 
 START_TEST(AddNode) {
     int i;
     const char* const list[] = { "Foo", "Bar", "Baz" };
-    pLLNode_t head = dsc_create_ll(TSIZE, (void*)list[0]);
-    pLLNode_t tmp = head;
-    dsc_add_ll_node(head, (void*)list[1]);
-    dsc_add_ll_node(head, (void*)list[2]);
 
+    LLNode_t *head = dsc_ll_create(sizeof(list[0]), (void*)list[0]);
+    dsc_ll_add_node(head, (void*)list[1]);
+    dsc_ll_add_node(head, (void*)list[2]);
+
+    LLNode_t *tmp = head;
     for (i = 0; tmp->next; tmp = tmp->next, ++i) {
-        ck_assert_str_eq(DSC_BUF_CHAR(tmp->data), list[i]);
+        ck_assert_str_eq(DSC_BUF_AS_CHAR(tmp->data), list[i]);
     }
 
-    dsc_destroy_ll(head);
+    dsc_ll_destroy(head);
 }
 END_TEST
 
-START_TEST(DelNode) {
+START_TEST(RemoveNode) {
     int i;
     const char* const list[] = { "Foo", "Bar", "Baz" };
-    pLLNode_t head = dsc_create_ll(TSIZE, (void*)list[0]);
-    pLLNode_t tmp = head;
-    dsc_add_ll_node(head, (void*)list[1]);
-    dsc_add_ll_node(head, (void*)list[2]);
 
-    ck_assert_int_eq((int)dsc_get_ll_len(head), (int)(sizeof(list) / sizeof(*list))); // List lengths match
-    dsc_del_ll_node(head, 1); // Delete item at index 1 (Bar)
-    ck_assert_int_eq((int)dsc_get_ll_len(head), (int)((sizeof(list) / sizeof(*list)) - 1)); // List lengths match
-    ck_assert_str_eq(DSC_BUF_CHAR(head->data), list[0]); // Head contains "Foo"
-    ck_assert_str_eq(DSC_BUF_CHAR(head->next->data), list[2]); // Head->next / tail contains "Baz"
+    LLNode_t *head = dsc_ll_create(sizeof(char*), (void*)list[0]);
+    dsc_ll_add_node(head, (void*)list[1]);
+    dsc_ll_add_node(head, (void*)list[2]);
 
-    dsc_destroy_ll(head);
+    LLNode_t *tmp = head;
+    size_t list_size = sizeof(list) / sizeof(*list);
+    ck_assert_int_eq(dsc_ll_num_nodes(head), list_size);
+
+    dsc_ll_remove_node(head, 1);
+    ck_assert_int_eq(dsc_ll_num_nodes(head), list_size - 1);
+    ck_assert_str_eq(DSC_BUF_AS_CHAR(head->data), list[0]);
+    ck_assert_str_eq(DSC_BUF_AS_CHAR(head->next->data), list[2]);
+
+    dsc_ll_destroy(head);
 }
 END_TEST
 
-START_TEST(GetNode) {
+START_TEST(RetrieveNode) {
+    int i;
+    const char* const list[] = { "Foo", "Bar", "Baz" };
+
+    LLNode_t *head = dsc_ll_create(sizeof(char*), (void*)list[0]);
+    dsc_ll_add_node(head, (void*)list[1]);
+    dsc_ll_add_node(head, (void*)list[2]);
+
+    LLNode_t *first  = dsc_ll_retrieve_node(head, 0);
+    LLNode_t *second = dsc_ll_retrieve_node(head, 1);
+    LLNode_t *third  = dsc_ll_retrieve_node(head, 2);
+    ck_assert_str_eq(DSC_BUF_AS_CHAR(first->data),  list[0]);
+    ck_assert_str_eq(DSC_BUF_AS_CHAR(second->data), list[1]);
+    ck_assert_str_eq(DSC_BUF_AS_CHAR(third->data),  list[2]);
+
+    dsc_ll_destroy(head);
 }
 END_TEST
 
@@ -66,8 +84,8 @@ Suite *buffer_suite(void) {
     tc_core = tcase_create("Core");
     tcase_add_test(tc_core, CreateLL);
     tcase_add_test(tc_core, AddNode);
-    /*tcase_add_test(tc_core, Memcpy);
-    tcase_add_test(tc_core, FreeBuffer);*/
+    tcase_add_test(tc_core, RemoveNode);
+    tcase_add_test(tc_core, RetrieveNode);
     suite_add_tcase(s, tc_core);
 
     return s;

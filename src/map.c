@@ -1,37 +1,41 @@
-#include "map.h"
-#include "buffer.h"
-
 /**
- * @brief Creates a new map.
- * @returns The initialized Map_t object
+ * @file map.c
+ * @author Neil Kingdom
+ * @version 1.0
+ * @since 20-07-2024
+ * @brief Provies APIs for managing a map construct.
  */
-DSC_DECL Map_t dsc_create_map(const size_t nelem, const size_t k_tsize, const size_t v_tsize) {
-    Map_t map = { NULL, NULL };
 
-    if (nelem <= 0 || k_tsize <= 0 || v_tsize <= 0) {
-        DSC_ERROR("Invalid parameter");
-        return map;
-    }
+#include "map.h"
 
-    map.keys   = dsc_create_buffer(nelem, k_tsize);
-    map.values = dsc_create_buffer(nelem, v_tsize);
+/*
+ * ===============================
+ *       Public Functions
+ * ===============================
+ */
+
+DSC_DECL Map_t dsc_map_create(
+    const size_t nelem,
+    const size_t key_tsize,
+    const size_t value_tsize
+) {
+    Map_t map = { 0 };
+
+    map.keys   = dsc_buf_create(nelem, key_tsize);
+    map.values = dsc_buf_create(nelem, value_tsize);
 
     return map;
 }
 
-/**
- * @brief [TODO:description]
- *
- * @return [TODO:return]
- */
-DSC_DECL DscError_t dsc_clear_map(Map_t map) {
+DSC_DECL DscError_t dsc_map_destroy(Map_t map) {
     int status;
 
-    status = dsc_destroy_buffer(&map.keys);
+    status = dsc_buf_destroy(&map.keys);
     if (status != DSC_EOK) {
         return DSC_EFAIL;
     }
-    status = dsc_destroy_buffer(&map.values);
+
+    status = dsc_buf_destroy(&map.values);
     if (status != DSC_EOK) {
         return DSC_EFAIL;
     }
@@ -39,37 +43,80 @@ DSC_DECL DscError_t dsc_clear_map(Map_t map) {
     return DSC_EOK;
 }
 
-/**
- * @brief [TODO:description]
- *
- * @param map [TODO:parameter]
- * @param key [TODO:parameter]
- * @return [TODO:return]
- */
-DSC_DECL bool dsc_map_contains_key(const Map_t map, const void *key) {
-    size_t i, nelem = dsc_get_buffer_capacity(map.keys);
+DSC_DECL DscError_t dsc_add_map_entry(
+    Map_t map,
+    const void* const key,
+    const void* const value
+) {
+    int status;
+    size_t keys_nelem   = dsc_buf_capacity(map.keys);
+    size_t values_nelem = dsc_buf_capacity(map.values);
 
-    for (i = 0; i < nelem; i += map.keys.tsize) {
-        if (memcmp((void*)(map.keys.addr + i), key, map.keys.tsize) == 0) {
-            return true;
-        }
+    status = dsc_buf_resize(&map.keys, keys_nelem + 1);
+    if (status != DSC_EOK) {
+        return DSC_EFAIL;
+    }
+    status = dsc_buf_resize(&map.values, values_nelem + 1);
+    if (status != DSC_EOK) {
+        return DSC_EFAIL;
     }
 
-    return false;
+    memcpy((map.keys.addr + keys_nelem), key, map.keys.tsize);
+    memcpy((map.values.addr + values_nelem), value, map.values.tsize);
+
+    return DSC_EOK;
 }
 
-/**
- * @brief [TODO:description]
- *
- * @param map [TODO:parameter]
- * @param value [TODO:parameter]
- * @return [TODO:return]
- */
-DSC_DECL bool dsc_map_contains_value(const Map_t map, const void *value) {
-    size_t i, nelem = dsc_get_buffer_capacity(map.values);
+DSC_DECL DscError_t dsc_map_replace_entry(
+    Map_t map,
+    const void* const key,
+    const void* const value
+) {
+    size_t i, nelem = dsc_buf_capacity(map.keys);
 
     for (i = 0; i < nelem; i += map.values.tsize) {
-        if (memcmp((void*)(map.values.addr + i), value, map.values.tsize) == 0) {
+        if (memcmp((map.keys.addr + i), key, map.keys.tsize) == 0) {
+            memcpy((map.values.addr + i), value, map.values.tsize);
+            return DSC_EOK;
+        }
+    }
+
+    return DSC_EFAIL;
+}
+
+DSC_DECL DscError_t dsc_map_remove_entry(Map_t map, const void* const key) {
+    size_t i, nelem = dsc_buf_capacity(map.keys);
+
+    for (i = 0; i < nelem; i += map.values.tsize) {
+        if (memcmp((map.keys.addr + i), key, map.keys.tsize) == 0) {
+            /* TODO: How to move everything over? Or do we? */
+            return DSC_EOK;
+        }
+    }
+
+    return DSC_EFAIL;
+}
+
+DSC_DECL Buffer_t dsc_map_retrieve_value(const Map_t map, const void* const key) {
+    size_t i, nelem = dsc_buf_capacity(map.keys);
+    Buffer_t value = { 0 };
+
+    for (i = 0; i < nelem; i += map.values.tsize) {
+        if (memcmp((map.keys.addr + i), key, map.keys.tsize) == 0) {
+            value = dsc_buf_create(1, map.values.tsize);
+            memcpy(value.addr, (map.values.addr + i), map.values.tsize);
+            break;
+        }
+    }
+
+    return value;
+}
+
+DSC_DECL bool dsc_map_contains_key(const Map_t map, const void* const key) {
+    size_t i, nelem = dsc_buf_capacity(map.keys);
+
+    for (i = 0; i < nelem; i += map.keys.tsize) {
+        if (memcmp((map.keys.addr + i), key, map.keys.tsize) == 0) {
             return true;
         }
     }
@@ -77,38 +124,14 @@ DSC_DECL bool dsc_map_contains_value(const Map_t map, const void *value) {
     return false;
 }
 
-/**
- * @brief [TODO:description]
- *
- * @param map [TODO:parameter]
- * @param key [TODO:parameter]
- * @param value [TODO:parameter]
- * @return [TODO:return]
- */
-DSC_DECL DscError_t dsc_add_map_entry(Map_t map, pBuffer_t key, pBuffer_t value) {
+DSC_DECL bool dsc_map_contains_value(const Map_t map, const void* const value) {
+    size_t i, nelem = dsc_buf_capacity(map.values);
 
-}
+    for (i = 0; i < nelem; i += map.values.tsize) {
+        if (memcmp((map.values.addr + i), value, map.values.tsize) == 0) {
+            return true;
+        }
+    }
 
-/**
- * @brief [TODO:description]
- *
- * @param map [TODO:parameter]
- * @param key [TODO:parameter]
- * @param value [TODO:parameter]
- * @return [TODO:return]
- */
-DSC_DECL DscError_t dsc_remove_map_entry(Map_t map, pBuffer_t key, pBuffer_t value) {
-
-}
-
-/**
- * @brief [TODO:description]
- *
- * @param map [TODO:parameter]
- * @param old_key [TODO:parameter]
- * @param new_key [TODO:parameter]
- * @return [TODO:return]
- */
-DSC_DECL DscError_t dsc_replace_map_entry(Map_t map, pBuffer_t old_key, pBuffer_t new_key) {
-
+    return false;
 }
