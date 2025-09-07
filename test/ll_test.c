@@ -1,9 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <check.h>
 
+#include "dsc_common.h"
 #include "ll.h"
-#include "buffer.h"
 
 START_TEST(CreateLL) {
     const char *test_str = "Hello, World!";

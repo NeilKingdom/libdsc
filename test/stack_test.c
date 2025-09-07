@@ -5,55 +5,29 @@
 #include "stack.h"
 
 START_TEST(CreateStack) {
-    Stack_t stack = dsc_stack_create(sizeof(long));
-    ck_assert_ptr_nonnull(stack.addr);
+    Stack_t stack = { 0 };
+    long data = 9999999999999;
+    dsc_stack_init(&stack, &data, sizeof(long));
+    ck_assert_ptr_nonnull(stack.base);
     ck_assert_int_eq(stack.tsize, sizeof(long));
-    ck_assert_int_eq(dsc_stack_capacity(stack), sizeof(int));
-    dsc_stack_destroy(&stack);
-}
-END_TEST
-
-START_TEST(PushStack) {
-    Stack_t stack = dsc_stack_create(sizeof(char*));
-    dsc_stack_push(&stack, (void*)("Some"));
-    dsc_stack_push(&stack, (void*)("test"));
-    dsc_stack_push(&stack, (void*)("data"));
-    ck_assert_int_eq(dsc_stack_capacity(stack), (3 * sizeof(char*)));
-
-    Buffer_t top = dsc_stack_peek(stack);
-    ck_assert_str_eq(DSC_BUF_AS_CHAR(top), "data");
-    dsc_buf_destroy(&top);
-
-    /* Repeat to make sure data is still present */
-    top = dsc_stack_peek(stack);
-    ck_assert_str_eq(DSC_BUF_AS_CHAR(top), "data");
-    dsc_buf_destroy(&top);
-
-    dsc_stack_destroy(&stack);
+    ck_assert_int_eq(stack.bsize, sizeof(long));
+    ck_assert_int_eq(dsc_stack_nelem(&stack), 1);
 }
 END_TEST
 
 START_TEST(PopStack) {
-    Stack_t stack = dsc_stack_create(sizeof(char*));
-    dsc_stack_push(&stack, (void*)("Some"));
-    dsc_stack_push(&stack, (void*)("test"));
-    dsc_stack_push(&stack, (void*)("data"));
-    ck_assert_int_eq(dsc_stack_capacity(stack), (3 * sizeof(char*)));
+    Stack_t stack = { 0 };
+    dsc_stack_init(&stack, (void*)strdup("Some"), sizeof(char*));
+    dsc_stack_push(&stack, (void*)strdup("test"));
+    dsc_stack_push(&stack, (void*)strdup("data"));
+    ck_assert_int_eq(dsc_stack_nelem(&stack), 3);
 
-    Buffer_t top = dsc_stack_pop(stack);
-    ck_assert_str_eq(DSC_BUF_AS_CHAR(top), "data");
-    dsc_buf_destroy(&top);
+    void *top = dsc_stack_peek(&stack);
+    ck_assert_str_eq((char*)top, "data");
 
-    top = dsc_stack_peek(stack);
-    ck_assert_str_eq(DSC_BUF_AS_CHAR(top), "test");
-    dsc_buf_destroy(&top);
-
-    dsc_stack_destroy(&stack);
-}
-END_TEST
-
-START_TEST(PeekStack) {
-    ck_assert(true);
+    dsc_stack_pop(&stack);
+    top = dsc_stack_peek(&stack);
+    ck_assert_str_eq((char*)top, "test");
 }
 END_TEST
 
@@ -66,9 +40,7 @@ Suite *buffer_suite(void) {
     /* Core test cases */
     tc_core = tcase_create("Core");
     tcase_add_test(tc_core, CreateStack);
-    tcase_add_test(tc_core, PushStack);
     tcase_add_test(tc_core, PopStack);
-    tcase_add_test(tc_core, PeekStack);
     suite_add_tcase(s, tc_core);
 
     return s;

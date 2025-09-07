@@ -6,21 +6,20 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif /* __cplusplus */
+#endif // __cplusplus
 
-typedef Buffer_t Stack_t; /* Stack is just a buffer of buffers */
+typedef Buffer_t Stack_t; // Stack is basically just a dynamic array
 
-/* Forward function declarations */
+// Forward function declarations
 
-DSC_DECL Stack_t        dsc_stack_create(const void* const data, const size_t tsize);
-DSC_DECL DscError_t     dsc_stack_destroy(Stack_t *stack);
-DSC_DECL DscError_t     dsc_stack_push(Stack_t *stack, const void* const data);
-DSC_DECL Buffer_t       dsc_stack_pop(Stack_t *stack);
-DSC_DECL Buffer_t       dsc_stack_peek(const Stack_t stack);
-DSC_DECL ssize_t        dsc_stack_capacity(const Stack_t stack);
+DscError_t     dsc_stack_init(Stack_t *stack, void *data, const uint8_t tsize);
+DscError_t     dsc_stack_push(Stack_t *stack, void *data);
+DscError_t     dsc_stack_pop(Stack_t *stack);
+void*          dsc_stack_peek(const Stack_t* const stack);
+size_t         dsc_stack_nelem(const Stack_t* const stack);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif // __cplusplus
 
-#endif /* STACK_H */
+#endif // STACK_H

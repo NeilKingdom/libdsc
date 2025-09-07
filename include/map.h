@@ -1,31 +1,31 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include "dsc_common.h"
-#include "buffer.h"
-
 #ifdef __cplusplus
 extern "C" {
-#endif /* __cplusplus */
+#endif // __cplusplus
+
+#include <stddef.h>
+
+// Method used for when hash collisions occur
+typedef enum {
+    BUCKETS,    // Use buckets i.e., value points to a linked list
+    INCREMENTAL // Continue iterating until a free slot is available
+} MapMethod_t;
 
 typedef struct {
-    Buffer_t keys;   /* Buffer containing keys */
-    Buffer_t values; /* Buffer containing values */
+    void *key;
+    void *value;
+} KV_t;
+
+typedef struct {
+    KV_t  *base;                // Pointer to the base address of the map
+    size_t nelem;               // Number of slots allocated; not the number of KV pairs
+    const MapMethod_t method;   // Mapping method (use buckets or increment when collision occurs)
 } Map_t;
-
-/* Forward function declarations */
-
-DSC_DECL Map_t          dsc_map_create(const size_t nelem, const size_t key_tsize, const size_t value_tsize);
-DSC_DECL DscError_t     dsc_map_destroy(Map_t map);
-DSC_DECL DscError_t     dsc_map_add_entry(Map_t map, const void* const key, const void* const value);
-DSC_DECL DscError_t     dsc_map_replace_entry(Map_t map, const void* const key, const void* const value);
-DSC_DECL DscError_t     dsc_map_remove_entry(Map_t map, const void* const key);
-DSC_DECL Buffer_t       dsc_map_retrieve_value(const Map_t map, const void* const key);
-DSC_DECL bool           dsc_map_contains_key(const Map_t map, const void* const key);
-DSC_DECL bool           dsc_map_contains_value(const Map_t map, const void* const value);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif // __cplusplus
 
-#endif /* MAP_H */
+#endif // MAP_H

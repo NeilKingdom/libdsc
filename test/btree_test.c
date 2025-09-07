@@ -1,22 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
+#include <string.h>
 #include <check.h>
 
-#include "../include/btree.h"
-#include "../include/buffer.h"
+#include "btree.h"
 
 START_TEST(CreateBTree) {
     char *greeting = "Hello, World";
-    pBTreeNode_t root = dsc_create_btree(strlen(greeting) + 1, sizeof(char), greeting);
-    ck_assert_str_eq(DSC_BUF_CHAR(root->data), greeting);
+    BTreeNode_t root = dsc_btree_create((void*)strdup(greeting), NULL, DFS);
+    ck_assert_str_eq((char*)root->data, greeting);
     ck_assert_int_eq((int)root->id, 0);
-    dsc_destroy_btree(root);
+    dsc_btree_destroy(root);
 }
 END_TEST
 
-static InsertCriteria add_btree_node_insert_func(const pBTreeNode_t comp_to, const pBTreeNode_t node) {
-    if (*DSC_BUF_INT(node->data) < *DSC_BUF_INT(comp_to->data)) {
+static InsertCmp_t add_test_insert_func(const BTreeNode_t node, const BTreeNode_t cmp) {
+    if (*((int*)node->data) < *((int*)cmp->data)) {
         return INSERT_LT;
     } else {
         return INSERT_GT;
@@ -24,25 +23,25 @@ static InsertCriteria add_btree_node_insert_func(const pBTreeNode_t comp_to, con
 }
 
 START_TEST(AddBTreeNode) {
-    int i;
-    int nums[] = { 5, 2, 10, 7, 8, 21, 3 };
-    int nums_size = sizeof(nums) / sizeof(*nums);
-    int nums_in_order[] = { 2, 3, 5, 7, 8, 10, 21 };
-    pBTreeNode_t root = dsc_create_btree(1, sizeof(int), (void*)&nums[4]); /* Root contains 8 */
-    pBTreeNode_t *list = malloc(sizeof(pBTreeNode_t) * nums_size);
+    int ordered_nums[] = { 2, 3, 5, 7, 8, 10, 21 };
+    int unordered_nums[] = { 5, 2, 10, 7, 8, 21, 3 };
+    int nums_size = sizeof(unordered_nums) / sizeof(*unordered_nums);
+
+    BTreeNode_t root = dsc_btree_create((void*)&unordered_nums[4], NULL, DFS); // Root will contain 8
+    BTreeNode_t *list = malloc(sizeof(struct BTreeNode) * nums_size);
     ck_assert(list);
 
-    for (i = 0; i < nums_size; ++i) {
+    for (int i = 0; i < nums_size; ++i) {
         if (i == 4) continue;
-        dsc_add_btree_node(root, (void*)&nums[i], 1, add_btree_node_insert_func);
+        dsc_btree_add(root, (void*)&unordered_nums[i], NULL, add_test_insert_func);
     }
 
-    dsc_get_btree_node_list(root, list, nums_size, IN_ORDER);
-    for (i = 0; i < nums_size; ++i) {
-        ck_assert_int_eq(*DSC_BUF_INT(list[i]->data), nums_in_order[i]);
+    dsc_btree_flatten(root, list);
+    for (int i = 0; i < nums_size; ++i) {
+        ck_assert_int_eq(*((int*)(list[i]->data)), ordered_nums[i]);
     }
 
-    dsc_destroy_btree(root);
+    dsc_btree_destroy(root);
     free(list);
 }
 END_TEST
@@ -68,7 +67,7 @@ static SortCriteria get_btree_node_sort_func(const pBTreeNode_t node) {
 }
 
 START_TEST(GetBTreeNode) {
-    int i; 
+    int i;
     char middle = 'n';
     char haystack[] = { 'z', 'q', 'r', 'a', 's', 'p', 'm', 'i', 'c' };
     int hs_size = sizeof(haystack) / sizeof(*haystack);
@@ -114,7 +113,7 @@ static InsertCriteria remove_btree_node_insert_func(const pBTreeNode_t comp_to, 
 
 static SortCriteria remove_btree_node_sort_func(const pBTreeNode_t node) {
     const char *remove = "may";
-    
+
     if (strcmp(remove, DSC_BUF_CHAR(node->data)) < 0) {
         return SORT_LT;
     } else if (strcmp(remove, DSC_BUF_CHAR(node->data)) > 0) {
@@ -128,14 +127,14 @@ START_TEST(RemoveBTreeNode) {
     int i;
     const char *sentence[] = { "a", "sentence", "may", "contain", "many", "words" };
     const char *expected[] = { "a", "sentence", "words" };
-    int ssize = sizeof(sentence) / sizeof(*sentence); 
-    int esize = sizeof(expected) / sizeof(*expected); 
+    int ssize = sizeof(sentence) / sizeof(*sentence);
+    int esize = sizeof(expected) / sizeof(*expected);
     pBTreeNode_t root = dsc_create_btree(strlen(sentence[0]) + 1, sizeof(char), (void*)sentence[0]);
     pBTreeNode_t *list = malloc(sizeof(pBTreeNode_t) * esize);
 
     for (i = 1; i < ssize; ++i) {
         dsc_add_btree_node(root, (void*)sentence[i], strlen(sentence[i]) + 1, remove_btree_node_insert_func);
-    } 
+    }
 
     dsc_remove_btree_node(root, remove_btree_node_sort_func);
     dsc_get_btree_node_list(root, list, esize, IN_ORDER);
@@ -143,7 +142,7 @@ START_TEST(RemoveBTreeNode) {
     for (i = 0; i < esize; ++i) {
         ck_assert_str_eq(DSC_BUF_CHAR(list[i]->data), expected[i]);
     }
-    
+
     dsc_destroy_btree(root);
     free(list);
 }

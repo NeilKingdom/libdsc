@@ -23,12 +23,17 @@ LDFLAGS += -lc -lcheck
 BINS := $(BIN_DIR)/libdsc.a $(BIN_DIR)/libdsc.so
 
 # Create static and dynamic libraries
-all: $(BINS)
+all: prebuild $(BINS)
 
 # Copy libraries to /usr/lib
 install: all
 	cp $(BINS) $(TGT_BIN_DIR)
 	cp $(INC_DIR)/*.h $(TGT_INC_DIR)
+
+# Pre-build actions
+prebuild:
+	mkdir -p $(OBJ_DIR)
+	mkdir -p $(BIN_DIR)
 
 # Remove object files and binaries
 clean:
@@ -53,4 +58,4 @@ $(OBJ_DIR)/%.o: $(SRCS) $(DEPS)
 # TODO: Modify test to include all tests
 test: all
 
-.PHONY: all install clean rebuild test
+.PHONY: all install clean prebuild rebuild test

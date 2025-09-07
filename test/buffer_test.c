@@ -1,42 +1,40 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <check.h>
 
+#include "dsc_common.h"
 #include "buffer.h"
 
 START_TEST(CreateBuffer) {
-    Buffer_t buf = dsc_buf_create(10, sizeof(int));
+    Buffer_t buf = { 0 };
+    dsc_buf_init(&buf, 10, sizeof(int));
+
     ck_assert_ptr_nonnull(buf.addr);
     ck_assert_int_eq(buf.tsize, sizeof(int));
-    ck_assert_int_eq(dsc_buf_capacity(buf), (10 * sizeof(int)));
-    dsc_buf_destroy(&buf);
+    ck_assert_int_eq(buf.bsize, 10 * sizeof(int));
+    ck_assert_int_eq(dsc_buf_nelem(&buf), 10);
 }
 END_TEST
 
 START_TEST(ResizeBuffer) {
-    Buffer_t buf = dsc_buf_create(5, sizeof(short));
-    dsc_buf_resize(&buf, 10);
-    ck_assert_int_eq(dsc_buf_capacity(buf), (10 * sizeof(short)));
+    Buffer_t buf = { 0 };
+
+    dsc_buf_init(&buf, 5, sizeof(short));
     ck_assert_int_eq(buf.tsize, sizeof(short));
-    dsc_buf_destroy(&buf);
+    ck_assert_int_eq(buf.bsize, 5 * sizeof(short));
+    ck_assert_int_eq(dsc_buf_nelem(&buf), 5);
+
+    dsc_buf_resize(&buf, 10);
+    ck_assert_int_eq(buf.tsize, sizeof(short));
+    ck_assert_int_eq(buf.bsize, 10 * sizeof(short));
+    ck_assert_int_eq(dsc_buf_nelem(&buf), 10);
 }
 END_TEST
 
 START_TEST(Memcpy) {
     const char *test_str = "Hello, World!";
-    Buffer_t buf = dsc_buf_create(1, sizeof(char*));
+    Buffer_t buf = { 0 };
+    dsc_buf_init(&buf, 1, sizeof(char*));
     memcpy(buf.addr, test_str, strlen(test_str) + 1);
-    ck_assert_str_eq(test_str, DSC_BUF_AS_CHAR(buf));
-    dsc_buf_destroy(&buf);
-}
-END_TEST
-
-START_TEST(FreeBuffer) {
-    Buffer_t buf = dsc_buf_create(1, 1);
-    dsc_buf_destroy(&buf);
-    ck_assert_ptr_null(buf.addr);
-    ck_assert_int_eq(buf.bsize, 0);
-    ck_assert_int_eq(dsc_buf_destroy(&buf), DSC_EFAIL);
+    ck_assert_str_eq((char*)buf.addr, test_str);
 }
 END_TEST
 
@@ -51,7 +49,6 @@ Suite *buffer_suite(void) {
     tcase_add_test(tc_core, CreateBuffer);
     tcase_add_test(tc_core, ResizeBuffer);
     tcase_add_test(tc_core, Memcpy);
-    tcase_add_test(tc_core, FreeBuffer);
     suite_add_tcase(s, tc_core);
 
     return s;

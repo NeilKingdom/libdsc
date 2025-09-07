@@ -1,4 +1,4 @@
-.clangd
-compile_flags.txt
-obj
 bin
+obj
+compile_commands.json
+.cache

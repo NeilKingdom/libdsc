@@ -14,83 +14,63 @@
  * ===============================
  */
 
-DSC_DECL Stack_t dsc_stack_create(const void* const data, const size_t tsize) {
-    Stack_t stack = dsc_buf_create(1, tsize);
+DscError_t dsc_stack_init(Stack_t *stack, void *data, const uint8_t tsize) {
+    dsc_buf_init((Buffer_t*)stack, 1, tsize);
 
-    if (data != NULL) {
-        memcpy(stack.addr, data, tsize);
+    if (stack->base == NULL) {
+        DSC_LOG("Failed to allocate memory for stack", DSC_ERROR);
+        return DSC_EFAIL;
     }
+    stack->base = data;
 
-    return stack;
+    return DSC_EOK;
 }
 
-DSC_DECL DscError_t dsc_stack_destroy(Stack_t *stack) {
+DscError_t dsc_stack_push(Stack_t *stack, void *data) {
     if (stack == NULL) {
         DSC_LOG("The stack points to an invalid address", DSC_ERROR);
         return DSC_EINVAL;
     }
 
-    return dsc_buf_destroy(stack);
-}
-
-DSC_DECL DscError_t dsc_stack_push(Stack_t *stack, const void* const data) {
-    int status;
-    size_t nelem = dsc_stack_capacity(*stack);
-
-    if (stack == NULL) {
-        DSC_LOG("The stack points to an invalid address", DSC_ERROR);
-        return DSC_EINVAL;
-    }
-
-    status = dsc_buf_resize(stack, nelem + 1);
+    size_t nelem = dsc_buf_nelem((Buffer_t*)stack);
+    DscError_t status = dsc_buf_resize((Buffer_t*)stack, nelem + 1);
     if (status != DSC_EOK) {
         return DSC_EFAIL;
     }
 
     if (data != NULL) {
-        memcpy((stack->addr + (nelem * stack->tsize)), data, stack->tsize);
+        memcpy((stack->base + (nelem * stack->tsize)), data, stack->tsize);
     }
 
     return DSC_EOK;
 }
 
-DSC_DECL Buffer_t dsc_stack_pop(Stack_t *stack) {
-    Buffer_t buf = { 0 };
-    void *data_bak = NULL;
-    size_t nelem = dsc_buf_capacity(*stack);
-
+// NOTE: Doesn't return popped value cuz we'd have to malloc it and I don't like that
+DscError_t dsc_stack_pop(Stack_t *stack) {
     if (stack == NULL) {
         DSC_LOG("The stack points to an invalid address", DSC_ERROR);
-        return buf;
+        return DSC_EINVAL;
     }
 
-    buf = dsc_buf_create(1, stack->tsize);
-    if (buf.addr != NULL) {
-        memcpy(buf.addr, stack->addr + ((nelem - 1) * stack->tsize), stack->tsize);
-    }
-
+    size_t nelem = dsc_buf_nelem((Buffer_t*)stack);
     if (nelem == 1) {
-        dsc_stack_destroy(stack);
+        stack->bsize = 0;
+        stack->base = NULL;
     } else {
-        dsc_buf_resize(stack, nelem - 1);
+        DscError_t status = dsc_buf_resize((Buffer_t*)stack, nelem - 1);
+        if (status != DSC_EOK) {
+            return DSC_EFAIL;
+        }
     }
 
-    return buf;
+    return DSC_EOK;
 }
 
-DSC_DECL Buffer_t dsc_stack_peek(Stack_t stack) {
-    int status;
-    Buffer_t buf;
-    size_t nelem = dsc_buf_capacity(stack);
-
-    buf = dsc_buf_create(1, stack.tsize);
-    if (buf.addr != NULL) {
-        memcpy(buf.addr, stack.addr + ((nelem - 1) * stack.tsize), stack.tsize);
-    }
-
-    return buf;
+void *dsc_stack_peek(const Stack_t* const stack) {
+    size_t nelem = dsc_buf_nelem((Buffer_t*)stack);
+    return stack->base + ((nelem - 1) * stack->tsize);
 }
 
-DSC_DECL ssize_t dsc_stack_capacity(Stack_t stack) {
-    return dsc_buf_capacity(stack);
+size_t dsc_stack_nelem(const Stack_t* const stack) {
+    return dsc_buf_nelem((const Buffer_t* const)stack);
 }

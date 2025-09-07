@@ -3,7 +3,7 @@
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
-#endif
+#endif // GNU_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,20 +17,17 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif /* __cplusplus */
+#endif // __cplusplus
 
-/* Change to static if you want function declarations to be static */
-#define DSC_DECL
-
-/* Errors align with those defined in errno.h */
+// Errors align with those defined in errno.h
 typedef enum {
-    DSC_EFAIL       = -1,   /* General purpose error */
-    DSC_EOK         =  0,   /* No error */
-    DSC_ENOMEM      =  12,  /* Not enough memory */
-    DSC_EFAULT      =  14,  /* Bad address */
-    DSC_EINVAL      =  22,  /* The argument was invalid */
-    DSC_ENODATA     =  61,  /* No data available */
-    DSC_EOVERFLOW   =  75,  /* Value too large to be stored in data type */
+    DSC_EFAIL       = -1,   // General purpose error
+    DSC_EOK         =  0,   // No error
+    DSC_ENOMEM      =  12,  // Not enough memory
+    DSC_EFAULT      =  14,  // Bad address
+    DSC_EINVAL      =  22,  // The argument was invalid
+    DSC_ENODATA     =  61,  // No data available
+    DSC_EOVERFLOW   =  75,  // Value too large to be stored in data type
 } DscError_t;
 
 typedef enum {
@@ -52,18 +49,18 @@ static void _dsc_log(
     const char *func,
     const int line,
     const char *msg,
-    const DscLogLevel_t level) {
-
-    char header[20];
+    const DscLogLevel_t level
+) {
+    const char* header;
     switch (level) {
         case DSC_NOTE:
-            strncpy(header, "NOTE", 20);
+            header = strdup("NOTE");
             break;
         case DSC_WARNING:
-            strncpy(header, "WARNING", 20);
+            header = strdup("WARNING");
             break;
         case DSC_ERROR:
-            strncpy(header, "ERROR", 20);
+            header = strdup("ERROR");
             break;
     }
 
@@ -87,6 +84,6 @@ static void _dsc_log(
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif // __cplusplus
 
-#endif /* COMMON_H */
+#endif // COMMON_H

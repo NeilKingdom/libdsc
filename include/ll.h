@@ -2,30 +2,28 @@
 #define LL_H
 
 #include "dsc_common.h"
-#include "buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif /* __cplusplus */
+#endif // __cplusplus
 
 typedef struct LLNode {
-   struct LLNode *next; /* Pointer to next node in the list */
-   Buffer_t       data; /* Buffer_t struct containing the node's data */
-} LLNode_t;
+    void *data;          // Pointer to the node's data
+    struct LLNode *next; // Pointer to next node in the list
+} *LLNode_t;
 
-/* Forward function declarations */
+// Forward function declarations
 
-DSC_DECL LLNode_t      *dsc_ll_create(const size_t tsize, const void* const data);
-DSC_DECL DscError_t     dsc_ll_destroy(LLNode_t *head);
-DSC_DECL DscError_t     dsc_ll_fill(LLNode_t *head, const uint8_t byte);
-DSC_DECL DscError_t     dsc_ll_add_node(LLNode_t *head, const void* const data);
-DSC_DECL DscError_t     dsc_ll_remove_node(LLNode_t *head, const unsigned idx);
-/* TODO: Add insert_node */
-DSC_DECL LLNode_t      *dsc_ll_retrieve_node(LLNode_t *head, const unsigned idx);
-DSC_DECL ssize_t        dsc_ll_num_nodes(LLNode_t *head);
+LLNode_t       dsc_ll_create(void* data);
+DscError_t     dsc_ll_destroy(LLNode_t head);
+DscError_t     dsc_ll_append(LLNode_t head, void* data);
+DscError_t     dsc_ll_insert(LLNode_t head, const LLNode_t node, const unsigned idx);
+DscError_t     dsc_ll_remove(LLNode_t head, const unsigned idx);
+LLNode_t       dsc_ll_peek(const LLNode_t head, const unsigned idx);
+size_t         dsc_ll_nelem(const LLNode_t head);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif // __cplusplus
 
-#endif /* LL_H */
+#endif // LL_H
