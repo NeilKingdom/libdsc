@@ -3,7 +3,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif
 
 #include <stddef.h>
 
@@ -26,6 +26,6 @@ typedef struct {
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif
 
-#endif // MAP_H
+#endif

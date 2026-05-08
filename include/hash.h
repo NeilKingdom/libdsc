@@ -5,7 +5,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif
 
 /**
  * @brief Produces a 32-bit hash for a generic byte stream using FNV-1a hash.
@@ -14,9 +14,9 @@ extern "C" {
  * @param[in] size The size of __data__ in bytes
  * @returns The 32-bit hash
  */
-static uint32_t fnv1a_hash(const void *data, const size_t size) {
-    const uint8_t *bytes = (const uint8_t *)data;
-    uint32_t hash = 2166136261; // FNV offset basis
+static u32 fnv1a_hash(const void *data, const size_t size) {
+    const u8 *bytes = (const u8*)data;
+    u32 hash = 2166136261; // FNV offset basis
 
     for (size_t i = 0; i < size; ++i) {
         hash ^= bytes[i];
@@ -28,6 +28,6 @@ static uint32_t fnv1a_hash(const void *data, const size_t size) {
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif
 
-#endif // HASH_H
+#endif

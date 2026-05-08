@@ -6,7 +6,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif
 
 // Forward function declarations
 
@@ -20,6 +20,6 @@ bool           dsc_hmap_contains_value(const Map_t map, const void* const value)
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif
 
-#endif // HMAP_H
+#endif

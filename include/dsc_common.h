@@ -1,10 +1,6 @@
 #ifndef DSC_COMMON_H
 #define DSC_COMMON_H
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif // GNU_SOURCE
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,17 +13,30 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif
 
-// Errors align with those defined in errno.h
+typedef uint8_t  u8;
+typedef int8_t   i8;
+typedef uint16_t u16;
+typedef int16_t  i16;
+typedef uint32_t u32;
+typedef int32_t  i32;
+typedef uint64_t u64;
+typedef int64_t  i64;
+typedef float    f32;
+typedef double   f64;
+typedef size_t   usize;
+typedef ssize_t  isize;
+
+// Custom error types
 typedef enum {
-    DSC_EFAIL       = -1,   // General purpose error
-    DSC_EOK         =  0,   // No error
-    DSC_ENOMEM      =  12,  // Not enough memory
-    DSC_EFAULT      =  14,  // Bad address
-    DSC_EINVAL      =  22,  // The argument was invalid
-    DSC_ENODATA     =  61,  // No data available
-    DSC_EOVERFLOW   =  75,  // Value too large to be stored in data type
+    DSC_FAILURE    = -1,            // General purpose error
+    DSC_SUCCESS    =  0,            // No error
+    DSC_NOMEM      =  ENOMEM,       // Not enough memory
+    DSC_FAULT      =  EFAULT,       // Bad address
+    DSC_INVAL      =  EINVAL,       // The argument was invalid
+    DSC_NODATA     =  ENODATA,      // No data available
+    DSC_OVERFLOW   =  EOVERFLOW     // Value too large to be stored in data type
 } DscError_t;
 
 typedef enum {
@@ -47,11 +56,15 @@ typedef enum {
 static void _dsc_log(
     const char *file,
     const char *func,
-    const int line,
+    const i32 line,
     const char *msg,
     const DscLogLevel_t level
 ) {
-    const char* header;
+#ifndef ENABLE_LOGS
+    return;
+#endif
+
+    char *header = NULL;
     switch (level) {
         case DSC_NOTE:
             header = strdup("NOTE");
@@ -70,6 +83,10 @@ static void _dsc_log(
         "File: %s, Function: %s, Line: %d\n",
         header, msg, file, func, line
     );
+
+    if (header) {
+        free(header);
+    }
 }
 
 #if defined(__GNUC__)
@@ -84,6 +101,6 @@ static void _dsc_log(
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif
 
-#endif // COMMON_H
+#endif
