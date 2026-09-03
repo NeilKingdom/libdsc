@@ -1,30 +1,29 @@
 ```
- _ _ _         _
-| (_) |__   __| |___  ___
+ _ _ _         _          
+| (_) |__   __| |___  ___ 
 | | | '_ \ / _` / __|/ __|
-| | | |_) | (_| \__ \ (__
+| | | |_) | (_| \__ \ (__ 
 |_|_|_.__/ \__,_|___/\___|
 ```
 
-✝️ This software was written in the name of the __Father__ and of the __Son__ and of the __Holy Spirit__; Amen.
-
-# Notes for me:
-- Hash map is not type safe
-- Map only grows; never shrinks
-- Btree, LL, DLL are always heap allocated. This is primarily for cleanup purposes, but also other practical
-reasons.
-- init = memory comes from user, create = memory is heap allocated
-- Nodes are assumed to have only 1 piece of data (i.e., is not assumed to be a list). We use void* instead
-of Buffer_t because of this reason, and also because it complicates the API
+---
 
 # About
 
-TODO: Add project info
+N/A
 
 # Dependencies
 
-TODO: Add project dependencies
+N/A
 
-# Installation
+# Usage
 
-TODO: Add notes on installation
+N/A
+
+---
+
+# Acknowledging Our Lord
+
+✝ May these works glorify and honour Christ, our Lord ✝
+
+_“So whether you eat or drink or whatever you do, do it all for the glory of God.”_ – 1 Corinthians 10:31

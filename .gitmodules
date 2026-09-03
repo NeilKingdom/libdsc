@@ -1,0 +1,3 @@
+[submodule "lib/ezc"]
+	path = lib/ezc
+	url = git@github.com:NeilKingdom/ezc.git

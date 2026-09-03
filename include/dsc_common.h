@@ -15,33 +15,40 @@
 extern "C" {
 #endif
 
-typedef uint8_t  u8;
 typedef int8_t   i8;
-typedef uint16_t u16;
+typedef uint8_t  u8;
 typedef int16_t  i16;
-typedef uint32_t u32;
+typedef uint16_t u16;
 typedef int32_t  i32;
-typedef uint64_t u64;
+typedef uint32_t u32;
 typedef int64_t  i64;
+typedef uint64_t u64;
 typedef float    f32;
 typedef double   f64;
-typedef size_t   usize;
 typedef ssize_t  isize;
+typedef size_t   usize;
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+#define KB(n) ((n) * 1024)
+#define MB(n) ((n) * 1024 * 1024)
+#define GB(n) ((n) * 1024 * 1024 * 1024)
 
 // Custom error types
 typedef enum {
-    DSC_FAILURE    = -1,            // General purpose error
-    DSC_SUCCESS    =  0,            // No error
-    DSC_NOMEM      =  ENOMEM,       // Not enough memory
-    DSC_FAULT      =  EFAULT,       // Bad address
-    DSC_INVAL      =  EINVAL,       // The argument was invalid
-    DSC_NODATA     =  ENODATA,      // No data available
-    DSC_OVERFLOW   =  EOVERFLOW     // Value too large to be stored in data type
+    DSC_FAILURE  = -1,        // General purpose error
+    DSC_SUCCESS  =  0,        // No error
+    DSC_NOMEM    =  ENOMEM,   // Not enough memory
+    DSC_FAULT    =  EFAULT,   // Bad address
+    DSC_INVAL    =  EINVAL,   // The argument was invalid
+    DSC_NODATA   =  ENODATA,  // No data available
+    DSC_OVERFLOW =  EOVERFLOW // Value too large to be stored in data type
 } DscError_t;
 
 typedef enum {
-    DSC_NOTE,
-    DSC_WARNING,
+    DSC_INFO,
+    DSC_WARN,
     DSC_ERROR
 } DscLogLevel_t;
 
@@ -60,33 +67,29 @@ static void _dsc_log(
     const char *msg,
     const DscLogLevel_t level
 ) {
-#ifndef ENABLE_LOGS
+#ifndef LOGGING_ENABLED
     return;
 #endif
 
-    char *header = NULL;
+    char *header;
     switch (level) {
-        case DSC_NOTE:
-            header = strdup("NOTE");
+        case DSC_INFO:
+            header = "NOTE";
             break;
-        case DSC_WARNING:
-            header = strdup("WARNING");
+        case DSC_WARN:
+            header = "WARNING";
             break;
         case DSC_ERROR:
-            header = strdup("ERROR");
+            header = "ERROR";
             break;
     }
 
-    fprintf((level == DSC_NOTE) ? stdout : stderr,
+    fprintf((level == DSC_INFO) ? stdout : stderr,
         "\n=========== %s ===========\n"
         "Logger: %s\n"
         "File: %s, Function: %s, Line: %d\n",
         header, msg, file, func, line
     );
-
-    if (header) {
-        free(header);
-    }
 }
 
 #if defined(__GNUC__)
